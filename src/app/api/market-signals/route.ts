@@ -84,50 +84,27 @@ Search for current data on:
 
 Respond with ONLY this JSON:
 {
-  "bondCreditSignals": {
-    "treasury10y": { "yield": 0, "weekChange": 0, "monthChange": 0, "trend": "up/down/flat", "elevated": true/false },
-    "creditSpreads": { "level": "tight/normal/widening/stressed", "trend": "up/down/flat" },
-    "bondVigilantes": { "active": true/false, "evidence": "description" },
-    "institutionalSentiment": "risk_on/cautious/risk_off/fleeing",
-    "corporateComplianceSignal": {
-      "score": 0-100,
-      "interpretation": "What bond/credit markets signal about elite/corporate stance toward regime",
-      "evidence": ["evidence 1", "evidence 2"]
-    }
-  },
-  "equityPublicSignals": {
-    "sp500": { "level": 0, "weekChange": 0, "monthChange": 0, "trend": "up/down/flat" },
-    "vix": { "level": 0, "interpretation": "low/moderate/elevated/high" },
-    "recentVolatility": "description of any sharp recent moves",
-    "retirementImpact": {
-      "mediaCoverage": "none/minimal/moderate/heavy",
-      "anxietyLevel": "low/moderate/high",
-      "politicalSalience": "not_salient/emerging/salient/dominant"
-    },
-    "publicOpinionPathway": {
-      "score": 0-100,
-      "interpretation": "How equity markets are translating into public opinion pressure",
-      "evidence": ["evidence 1", "evidence 2"]
-    }
+  "marketConditions": {
+    "sp500": { "level": 5000, "weekChange": -1.5, "monthChange": 2.3, "trend": "up/down/flat" },
+    "treasury10y": { "yield": 4.5, "weekChange": 0.1, "trend": "up/down/flat", "elevated": true/false },
+    "vix": { "level": 18, "interpretation": "low/moderate/elevated/high" },
+    "recentVolatility": "description of any sharp recent moves"
   },
   "policyMarketEvents": [
     {
       "date": "date",
       "policy": "policy description",
       "marketReaction": "crash/drop/flat/rally/surge",
-      "magnitude": percent_move,
-      "whichMarketDrove": "bonds/equities/both",
+      "magnitude": 2.5,
       "followUp": "reversal/modification/maintained/unknown",
       "tacoPattern": true/false
     }
   ],
   "tacoPatternAnalysis": {
-    "instancesLast90Days": 0,
+    "instancesLast90Days": 3,
     "patternHolding": true/false,
-    "bondDrivenReversals": 0,
-    "equityDrivenReversals": 0,
     "marketDisciplineWorking": true/false,
-    "summary": "analysis of whether markets are constraining policy and which market type matters more"
+    "summary": "analysis of whether markets are constraining policy"
   },
   "businessSentiment": {
     "overall": "panic/fearful/cautious/neutral/confident/euphoric",
@@ -137,59 +114,35 @@ Respond with ONLY this JSON:
   },
   "modelInterpretations": {
     "marxian": {
-      "interpretation": "How Marxian model reads these signals - capital's structural power, class action",
-      "regime_capital_alignment": "aligned/tension/conflict",
+      "interpretation": "How Marxian model reads these signals",
       "implication": "What this means for consolidation"
     },
     "redistributive": {
-      "interpretation": "Acemoglu-Robinson reading - elite veto, redistributive conflict",
-      "elite_regime_alignment": "aligned/mixed/misaligned",
+      "interpretation": "Acemoglu-Robinson reading",
       "implication": "What this means for consolidation"
     },
     "gramscian": {
       "interpretation": "Gramscian reading - hegemonic status of capital",
-      "hegemonic_status": "capital_hegemonic/contested/regime_autonomous",
       "implication": "What this means for consolidation"
     },
     "svolik": {
       "interpretation": "Svolik reading - elite coordination signals",
-      "elite_coordination": "coordinating_resistance/fragmented/coordinating_support",
       "implication": "What this means for consolidation"
     },
     "classical": {
-      "interpretation": "Classical reading - commercial virtue, appetitive dominance",
-      "civic_virtue_signal": "markets_show_decay/ambiguous/virtuous_indifference",
+      "interpretation": "Classical reading - commercial virtue",
       "implication": "What this means for regime character"
     },
     "paxton": {
-      "interpretation": "Paxton reading - capital complicity in fascist consolidation",
-      "capital_complicity": "resisting/hedging/complicit",
+      "interpretation": "Paxton reading - capital complicity",
       "implication": "What stage of fascist process this suggests"
-    },
-    "frankfurtSchool": {
-      "interpretation": "Frankfurt School reading - market volatility as inter-racket conflict (Neumann), capital as one competing power bloc among many. Skeptical of markets as constraint - capital was complicit in Nazism",
-      "racket_dynamics": "unified_regime/competing_rackets/chaotic",
-      "capital_as_racket": "Is capital acting as independent power bloc or aligned with regime?",
-      "implication": "What this means for regime structure - totalitarian unity or Behemoth-style chaos?"
-    }
-  },
-  "factorMapping": {
-    "corporateComplianceFactor": {
-      "primarySignal": "bondCreditSignals",
-      "score": 0-100,
-      "summary": "How bond/credit markets inform the corporate compliance factor"
-    },
-    "publicOpinionFactor": {
-      "primarySignal": "equityPublicSignals + media translation",
-      "score": 0-100,
-      "summary": "How equity market coverage informs the public opinion factor"
     }
   },
   "overallAssessment": {
     "marketConstraintLevel": "strong/moderate/weak/none",
     "regimeResponsiveness": "high/medium/low",
     "consolidationImplication": "markets_constraining/ambiguous/markets_enabling",
-    "summary": "2-3 sentence synthesis distinguishing bond vs equity signals"
+    "summary": "2-3 sentence synthesis"
   }
 }`;
 

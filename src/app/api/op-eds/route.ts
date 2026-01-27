@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Outlet classification for interpreting results
 const OUTLET_PROFILES: Record<string, { class: string; affinity: string; type: string }> = {
-  // Elite outlets
+  // Elite traditional outlets
   'new york times': { class: 'elite', affinity: 'opposition', type: 'traditional' },
   'washington post': { class: 'elite', affinity: 'opposition', type: 'traditional' },
   'wall street journal': { class: 'elite', affinity: 'regime', type: 'traditional' },
@@ -10,6 +10,8 @@ const OUTLET_PROFILES: Record<string, { class: string; affinity: string; type: s
   'the economist': { class: 'elite', affinity: 'neutral', type: 'traditional' },
   'financial times': { class: 'elite', affinity: 'neutral', type: 'traditional' },
   'bloomberg': { class: 'elite', affinity: 'neutral', type: 'traditional' },
+  'foreign affairs': { class: 'elite', affinity: 'neutral', type: 'traditional' },
+  'the new yorker': { class: 'elite', affinity: 'opposition', type: 'traditional' },
 
   // Mainstream
   'fox news': { class: 'mainstream', affinity: 'regime', type: 'traditional' },
@@ -18,16 +20,22 @@ const OUTLET_PROFILES: Record<string, { class: string; affinity: string; type: s
   'npr': { class: 'mainstream', affinity: 'neutral', type: 'traditional' },
   'politico': { class: 'mainstream', affinity: 'neutral', type: 'traditional' },
   'axios': { class: 'mainstream', affinity: 'neutral', type: 'traditional' },
+  'the hill': { class: 'mainstream', affinity: 'neutral', type: 'traditional' },
 
-  // Populist
+  // Populist traditional
   'breitbart': { class: 'populist', affinity: 'regime', type: 'traditional' },
   'daily wire': { class: 'populist', affinity: 'regime', type: 'traditional' },
   'huffpost': { class: 'populist', affinity: 'opposition', type: 'traditional' },
   'vox': { class: 'populist', affinity: 'opposition', type: 'traditional' },
   'the daily beast': { class: 'populist', affinity: 'opposition', type: 'traditional' },
+  'the intercept': { class: 'populist', affinity: 'opposition', type: 'traditional' },
+  'jacobin': { class: 'populist', affinity: 'opposition', type: 'traditional' },
+  'national review': { class: 'populist', affinity: 'regime', type: 'traditional' },
+  'the federalist': { class: 'populist', affinity: 'regime', type: 'traditional' },
 
-  // Substacks
+  // Substacks - these shape elite/informed opinion
   'heather cox richardson': { class: 'elite', affinity: 'opposition', type: 'substack' },
+  'letters from an american': { class: 'elite', affinity: 'opposition', type: 'substack' },
   'the free press': { class: 'elite', affinity: 'regime', type: 'substack' },
   'bari weiss': { class: 'elite', affinity: 'regime', type: 'substack' },
   'slow boring': { class: 'elite', affinity: 'neutral', type: 'substack' },
@@ -35,14 +43,37 @@ const OUTLET_PROFILES: Record<string, { class: string; affinity: string; type: s
   'the bulwark': { class: 'mainstream', affinity: 'opposition', type: 'substack' },
   'matt taibbi': { class: 'populist', affinity: 'regime', type: 'substack' },
   'glenn greenwald': { class: 'populist', affinity: 'regime', type: 'substack' },
+  'andrew sullivan': { class: 'elite', affinity: 'neutral', type: 'substack' },
+  'the weekly dish': { class: 'elite', affinity: 'neutral', type: 'substack' },
+  'yascha mounk': { class: 'elite', affinity: 'opposition', type: 'substack' },
+  'persuasion': { class: 'elite', affinity: 'opposition', type: 'substack' },
+  'noah smith': { class: 'elite', affinity: 'neutral', type: 'substack' },
+  'noahpinion': { class: 'elite', affinity: 'neutral', type: 'substack' },
+  'zeynep tufekci': { class: 'elite', affinity: 'opposition', type: 'substack' },
+  'common sense': { class: 'elite', affinity: 'regime', type: 'substack' },
 
-  // Podcasts
+  // Podcasts - massive audience reach
   'joe rogan': { class: 'mainstream', affinity: 'neutral', type: 'podcast' },
+  'joe rogan experience': { class: 'mainstream', affinity: 'neutral', type: 'podcast' },
   'tucker carlson': { class: 'mainstream', affinity: 'regime', type: 'podcast' },
   'ben shapiro': { class: 'populist', affinity: 'regime', type: 'podcast' },
   'pod save america': { class: 'mainstream', affinity: 'opposition', type: 'podcast' },
   'ezra klein': { class: 'elite', affinity: 'opposition', type: 'podcast' },
+  'ezra klein show': { class: 'elite', affinity: 'opposition', type: 'podcast' },
   'all-in podcast': { class: 'elite', affinity: 'regime', type: 'podcast' },
+  'all-in': { class: 'elite', affinity: 'regime', type: 'podcast' },
+  'lex fridman': { class: 'elite', affinity: 'neutral', type: 'podcast' },
+  'breaking points': { class: 'populist', affinity: 'neutral', type: 'podcast' },
+  'megyn kelly': { class: 'mainstream', affinity: 'regime', type: 'podcast' },
+  'dan bongino': { class: 'populist', affinity: 'regime', type: 'podcast' },
+  'the daily': { class: 'elite', affinity: 'opposition', type: 'podcast' },
+
+  // YouTube/Video commentators
+  'tim pool': { class: 'populist', affinity: 'regime', type: 'youtube' },
+  'steven crowder': { class: 'populist', affinity: 'regime', type: 'youtube' },
+  'destiny': { class: 'populist', affinity: 'opposition', type: 'youtube' },
+  'hasan piker': { class: 'populist', affinity: 'opposition', type: 'youtube' },
+  'hasanabi': { class: 'populist', affinity: 'opposition', type: 'youtube' },
 };
 
 interface ContentBlock {
@@ -57,10 +88,13 @@ interface ApiResponse {
 
 export async function POST(request: NextRequest) {
   try {
-    const { apiKey } = await request.json();
+    const body = await request.json();
+    const { apiKey } = body;
+
+    console.log('Op-eds request received:', { hasApiKey: !!apiKey, apiKeyLength: apiKey?.length });
 
     if (!apiKey) {
-      return NextResponse.json({ error: 'Anthropic API key required' }, { status: 400 });
+      return NextResponse.json({ error: 'Anthropic API key required', received: Object.keys(body) }, { status: 400 });
     }
 
     const currentDate = new Date().toLocaleDateString('en-US', {
@@ -75,17 +109,47 @@ You are a media analyst tracking editorial positions across the US media landsca
 
 SEARCH FOR CONTENT FROM THESE SOURCES (execute multiple searches):
 
-1. ELITE OUTLETS - Search: "New York Times editorial" OR "Washington Post opinion" OR "Wall Street Journal editorial" OR "The Atlantic" - find their current editorial positions on Trump administration, democracy, governance
+1. ELITE OUTLETS - Search: "New York Times editorial" OR "Washington Post opinion" OR "Wall Street Journal editorial" OR "The Atlantic" OR "The Economist" OR "Foreign Affairs"
 
-2. MAINSTREAM OUTLETS - Search: "Fox News opinion" OR "CNN analysis" OR "MSNBC" - what narratives are they pushing?
+2. MAINSTREAM OUTLETS - Search: "Fox News opinion" OR "CNN analysis" OR "MSNBC" OR "Politico" OR "Axios"
 
-3. POPULIST OUTLETS - Search: "Breitbart" OR "Daily Wire" OR "HuffPost" OR "Vox" - what's the populist discourse?
+3. POPULIST OUTLETS - Search: "Breitbart" OR "Daily Wire" OR "HuffPost" OR "Vox" OR "The Intercept" OR "Jacobin"
 
-4. SUBSTACKS - Search: "Heather Cox Richardson Letters" OR "The Free Press Bari Weiss" OR "Slow Boring Matt Yglesias" OR "The Bulwark" - what are influential independent voices saying?
+4. KEY SUBSTACKS (HIGH PRIORITY - these shape elite opinion):
+   - Search: "Heather Cox Richardson" (opposition historian, massive reach)
+   - Search: "Bari Weiss Free Press" (center-right contrarian)
+   - Search: "Matt Yglesias Slow Boring" (center-left wonk)
+   - Search: "The Bulwark" (anti-Trump conservative)
+   - Search: "Matt Taibbi" (populist left-turned-right)
+   - Search: "Glenn Greenwald" (civil libertarian contrarian)
+   - Search: "Andrew Sullivan" (center-right)
+   - Search: "Yascha Mounk Persuasion" (democracy scholar)
+   - Search: "Noah Smith Noahpinion" (economics/policy)
+   - Search: "Zeynep Tufekci" (tech/society)
 
-5. PODCASTS - Search: "Joe Rogan said" OR "Tucker Carlson show" OR "Ben Shapiro" OR "Pod Save America" OR "All-In podcast" - what are major podcasts discussing?
+5. MAJOR PODCASTS (HIGH PRIORITY - massive audience reach):
+   - Search: "Joe Rogan Experience" Trump OR politics (largest podcast)
+   - Search: "Tucker Carlson" show OR interview (right populist)
+   - Search: "Ben Shapiro Daily Wire" (conservative)
+   - Search: "Pod Save America" (liberal)
+   - Search: "All-In podcast" Sacks Calacanis (tech elite)
+   - Search: "Lex Fridman" politics (tech/intellectual)
+   - Search: "Breaking Points" Krystal Saagar (populist cross-partisan)
+   - Search: "Megyn Kelly" show (center-right)
+   - Search: "Dan Bongino" (MAGA media)
+   - Search: "The Daily" New York Times (elite liberal)
+   - Search: "Ezra Klein Show" (intellectual left)
 
-6. NIXON-TO-CHINA MOMENTS - Search for: regime-friendly outlets (WSJ, Fox) criticizing Trump, OR opposition outlets (NYT, WaPo) praising Trump policies. These unexpected alignments are HIGH SIGNAL.
+6. YOUTUBE/VIDEO COMMENTATORS:
+   - Search: "Tim Pool" politics
+   - Search: "Steven Crowder"
+   - Search: "Destiny streamer" politics
+   - Search: "Hasan Piker" politics
+
+7. NIXON-TO-CHINA MOMENTS (HIGHEST SIGNAL):
+   Search for regime-friendly outlets (WSJ, Fox, Daily Wire, Breitbart) criticizing Trump
+   Search for opposition outlets (NYT, WaPo, MSNBC) praising Trump policies
+   These unexpected alignments indicate shifting coalitions.
 
 For each piece of content found, identify:
 - Source outlet

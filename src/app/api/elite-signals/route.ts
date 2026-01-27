@@ -12,10 +12,13 @@ interface ApiResponse {
 
 export async function POST(request: NextRequest) {
   try {
-    const { apiKey } = await request.json();
+    const body = await request.json();
+    const { apiKey } = body;
+
+    console.log('Elite signals request received:', { hasApiKey: !!apiKey, apiKeyLength: apiKey?.length });
 
     if (!apiKey) {
-      return NextResponse.json({ error: 'Anthropic API key required' }, { status: 400 });
+      return NextResponse.json({ error: 'Anthropic API key required', received: Object.keys(body) }, { status: 400 });
     }
 
     const currentDate = new Date().toLocaleDateString('en-US', {
@@ -26,33 +29,44 @@ export async function POST(request: NextRequest) {
 
     const prompt = `TODAY'S DATE: ${currentDate}
 
-You are a political analyst tracking ELITE DEFECTIONS and PARTY COORDINATION signals. Search for RECENT news (last 48-72 hours) about Republican officials breaking with or supporting Trump administration actions.
+You are a political analyst tracking ELITE DEFECTIONS and PARTY COORDINATION signals. Search for THE MOST RECENT news (last 24-48 hours, prioritize TODAY) about Republican officials' statements on Trump administration actions.
 
-EXECUTE THESE SEARCHES:
+CRITICAL: Search for STATEMENTS, QUOTES, and VOTES from the last 24-48 hours. Not old profiles or historical articles.
 
-1. GOP LEADERSHIP - Search: "McConnell Trump" OR "Thune Trump" OR "Mike Johnson Trump" - are they supporting or distancing?
+EXECUTE THESE SEARCHES (prioritize finding direct quotes and statements):
 
-2. GOP SENATORS - Search: "Republican senator criticizes Trump" OR "GOP senator breaks with" OR "Susan Collins Trump" OR "Lisa Murkowski Trump" OR "Mitt Romney"
+1. GOP SENATE LEADERSHIP - Search: "Thune said" OR "Thune statement" OR "McConnell said" OR "John Cornyn said" - what are leaders saying TODAY?
 
-3. GOP GOVERNORS - Search: "DeSantis Trump" OR "Brian Kemp Trump" OR "Republican governor" - are governors coordinating or resisting?
+2. GOP SENATORS (swing votes) - Search: "Susan Collins said" OR "Lisa Murkowski statement" OR "Todd Young said" OR "Bill Cassidy said" OR "Rand Paul Trump" - any breaks or support?
 
-4. FORMER OFFICIALS - Search: "Mike Pence Trump" OR "Bill Barr Trump" OR "John Kelly Trump" OR "Mark Esper Trump" - what are former officials saying?
+3. GOP HOUSE LEADERSHIP - Search: "Mike Johnson said" OR "Speaker Johnson statement" OR "Steve Scalise said" - what is House GOP saying?
 
-5. CONSERVATIVE MEDIA FIGURES - Search: "Tucker Carlson" OR "Ben Shapiro" OR "Ann Coulter Trump" - are base-facing media figures supportive or critical?
+4. REPUBLICAN GOVERNORS - Search: "DeSantis said" OR "Glenn Youngkin statement" OR "Brian Kemp said" OR "Greg Abbott statement" OR "Republican governor criticizes" - state-level signals
 
-6. BUSINESS ELITE - Search: "CEO Trump" OR "business leaders Trump" OR "Wall Street Trump" - is capital coordinating or hedging?
+5. GOP SENATORS BY NAME (recent statements):
+   - Search: "Marco Rubio statement" OR "Ted Cruz said" OR "Lindsey Graham said"
+   - Search: "JD Vance said" OR "Tom Cotton statement"
+   - Look for statements on current controversies
 
-7. MILITARY/NATIONAL SECURITY - Search: "generals Trump" OR "Pentagon Trump" OR "military Trump" - any military/security elite signals?
+6. FORMER TRUMP OFFICIALS - Search: "Mike Pence said" OR "Bill Barr statement" OR "John Bolton said" OR "Mark Esper said" OR "John Kelly statement" - former officials speaking out?
 
-For each signal found, identify:
-- Who is speaking/acting
-- Their role/position
-- Whether they're SUPPORTING or BREAKING WITH Trump
-- The significance (high/medium/low)
+7. REPUBLICAN CRITICS - Search: "Liz Cheney said" OR "Adam Kinzinger statement" OR "Chris Christie said" - what are GOP critics saying?
+
+8. CONSERVATIVE MEDIA - Search: "Tucker Carlson said" OR "Ben Shapiro statement" OR "Ann Coulter Trump" OR "Charlie Kirk said" - base-facing media figures
+
+9. BUSINESS ELITE - Search: "CEO statement Trump" OR "Jamie Dimon Trump" OR "business leaders" OR "Chamber of Commerce statement"
+
+10. CONGRESSIONAL VOTES - Search: "Republican senators vote against" OR "GOP breaks with Trump" OR "bipartisan vote" - any defection votes?
+
+For each signal found, MUST INCLUDE:
+- EXACT QUOTE or specific action (not just "criticized")
+- The date of the statement (must be within last 48 hours)
+- Context: what policy/action they're responding to
+- Whether SUPPORTING or BREAKING WITH administration
 
 ALSO SEARCH FOR PROPAGANDA EFFECTIVENESS:
-- Search: "Fox News Trump" - how is regime media covering administration?
-- Search: "Breitbart Trump" - is populist base media enthusiastic or critical?
+- Search: "Fox News Trump coverage" - how is regime media framing?
+- Search: "Breitbart Trump" - populist base media tone?
 
 RESPOND WITH ONLY THIS JSON (follow this format exactly):
 {

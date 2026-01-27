@@ -67,6 +67,48 @@ PUBLIC_OPINION (this is REGIME APPROVAL RATING - higher score = regime more popu
   EXAMPLE: If Trump approval is 42%, score should be ~30-35 (in the 21-40 band for "underwater"). Do NOT score 42 just because approval is 42%.
 
   ALSO NOTE: Intensity matters - is the base enthusiastic or reluctant? Adjust within band accordingly.
+
+  DEMOGRAPHIC CROSS-TABS (CRITICAL for class/elite analysis - search for recent polling with breakdowns):
+  Search for polls with demographic breakdowns on regime approval/key policies. Include in evidence:
+
+  CLASS INDICATORS (distinguish Marxian from Weberian):
+
+  MARXIAN CLASS (relationship to means of production - THIS IS PRIMARY):
+  - Capital owners: Business owners, investors, landlords, shareholders (own means of production)
+  - Working class: Wage laborers who sell labor power (do NOT own means of production)
+  - Search for: "business owner approval" vs "employee approval", investor sentiment vs worker sentiment
+  - Self-employed vs employed distinction matters
+  - Stock ownership as proxy: significant shareholders vs non-owners
+
+  WEBERIAN STATUS (education/credentials - secondary, feeds different models):
+  - Education: Non-college vs college vs postgrad (credentialism, not Marxian class)
+  - This feeds Svolik polarization analysis, not Marxian analysis
+  - Professional-managerial class (PMC) is NOT bourgeoisie - they sell labor too
+
+  INCOME (imperfect proxy - high-paid workers ≠ capitalists):
+  - Income bands are WEAK proxy for class - a well-paid doctor is still a worker
+  - Use income only when ownership data unavailable
+  - Union households: Union vs non-union (actual working class organization)
+
+  ELITE VS MASS (for Svolik, A-R models):
+  - Business owner/investor sentiment vs general population
+  - CEO surveys, Chamber of Commerce, Business Roundtable positions
+  - Capital-owner class vs everyone else
+
+  OTHER KEY BREAKS:
+  - Race/ethnicity: White vs Black vs Hispanic vs Asian approval
+  - Age: 18-29 vs 30-44 vs 45-64 vs 65+ (generational divide)
+  - Gender: Men vs women gap
+  - Geography: Urban vs suburban vs rural
+  - Religion: White evangelical vs Black Protestant vs Catholic vs secular
+
+  INTERPRET FOR THEORY:
+  - Capital owners vs workers divergence → MARXIAN (class struggle, capital vs labor)
+  - Education/credential polarization → SVOLIK (partisan sorting by education)
+  - Elite-mass divergence (any measure) → A-R REDISTRIBUTIVE (elite veto, mass threat)
+  - Cross-class coalition for regime → GRAMSCIAN (hegemony, consent across classes)
+  - Working class support for regime despite capital opposition → CLASSICAL (demagoguery, popular tyranny)
+  - Capital supporting regime against workers → MARXIAN (capital using state against labor)
 MOBILIZATIONAL_BALANCE (traditional civil society - per Berman, Riley, Skocpol's "dark side of social capital"):
   WEIGHT BY ORG TYPE: HIGH=unions (dues-paying, can strike), churches (activated congregations with turnout infrastructure), membership orgs with dues; MEDIUM=501c4 advocacy orgs, community orgs, worker centers; LOW=staff-driven 501c3s, policy think tanks (ideas not people). DISCOUNT centralized orgs dependent on charismatic leaders, "chapters" that are sign-ups not active locals.
 
@@ -78,7 +120,7 @@ MOBILIZATIONAL_BALANCE (traditional civil society - per Berman, Riley, Skocpol's
   - OTHER: Jewish congregations (lean Democratic, organized), Muslim communities (post-2016 more activated, lean Democratic), Hindu/Sikh (growing, mixed).
 
   REGIME-ALIGNED (US): white evangelical churches (when actually activated, not just assumed), local GOP committees, conservative 501c4s (AFP, Turning Point Action), militia/paramilitary (Oath Keepers, Proud Boys, 3%ers), conservative Catholic orgs, business associations (chambers of commerce).
-  OPPOSITION (US): union locals (public sector especially - teachers, SEIU, AFSCME), Black churches and faith networks, civil rights chapters (NAACP, Urban League), worker centers, Indivisible chapters, Working Families Party, DSA chapters, state civic engagement tables (State Voices network), mainline Protestant social justice committees, progressive Catholic networks, coordinated campaign infrastructure.
+  OPPOSITION (US): union locals (public sector especially - teachers, SEIU, AFSCME), Black churches and faith networks, civil rights chapters (NAACP, Urban League), worker centers, Indivisible chapters, Working Families Party, DSA chapters (note: 75,000+ members nationally; largest chapters: NYC-DSA 10,000+, Chicago DSA, LA DSA, Austin DSA, Philly DSA, Twin Cities DSA, Pittsburgh DSA - search for local chapter membership and elected officials like AOC, Jamaal Bowman, state legislators), state civic engagement tables (State Voices network), mainline Protestant social justice committees, progressive Catholic networks, coordinated campaign infrastructure.
 
   ALSO ASSESS: Coalition infrastructure (do coordination bodies exist?), historical activation (can they turn people out? recent precedents?), federated vs centralized structure. Don't double-count: ActBlue is fundraising infrastructure, not mobilization. Measure actual door-knocking, phone-banking, turnout capacity.
   SCORING: 0-20=opposition strong (dense unions, Black church infrastructure, functioning coalitions, demonstrated turnout); 21-40=opposition advantage (union presence, faith networks activated, progressive infrastructure intact); 41-60=roughly balanced (both sides have infrastructure, contested terrain); 61-80=regime advantage (white evangelical activation high, unions weak, militia presence, opposition fragmented); 81-100=regime dominates (opposition atomized, unions crushed, no counter-mobilization capacity).
@@ -108,7 +150,44 @@ ELECTIONS: 0-20=free/fair, 21-40=minor issues, 41-60=manipulation, 61-80=systema
   "political": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
   "media": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
   "civil": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
-  "publicOpinion": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
+  "publicOpinion": {
+    "score": 0,
+    "evidence": "overall approval % and trend",
+    "trend": "stable",
+    "sources": "polling sources",
+    "demographics": {
+      "marxianClass": {
+        "capitalOwners": {"approval": 0, "note": "business owners, investors, landlords"},
+        "workingClass": {"approval": 0, "note": "wage workers, employees"},
+        "classGap": 0,
+        "capitalLaborDivergence": "describe tension or alignment"
+      },
+      "weberianStatus": {
+        "nonCollege": 0,
+        "college": 0,
+        "credentialGap": 0,
+        "note": "education polarization - not Marxian class"
+      },
+      "byRace": {
+        "white": 0,
+        "black": 0,
+        "hispanic": 0,
+        "raceGap": 0
+      },
+      "eliteVsMass": {
+        "eliteApproval": 0,
+        "massApproval": 0,
+        "divergence": 0,
+        "note": "elite = capital owners + high credentialed"
+      },
+      "keyFindings": ["finding 1", "finding 2"],
+      "theoreticalImplications": {
+        "marxian": "what capital vs labor split means",
+        "redistributive": "what elite-mass gap means",
+        "gramscian": "hegemony status - consent or coercion"
+      }
+    }
+  },
   "mobilizationalBalance": {"score": 0, "evidence": "REQUIRED FORMAT: Union density X.X% (trend). Opposition orgs: [named orgs]. Regime orgs: [named orgs]. Religious: Black churches [assessment], evangelical [assessment], Catholic [split assessment]. Recent mobilizations: [event, date, turnout]. Coalition infrastructure: [yes/no, named bodies].", "trend": "stable", "sources": "sources"},
   "stateCapacity": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
   "corporateCompliance": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},

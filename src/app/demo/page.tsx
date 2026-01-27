@@ -139,7 +139,7 @@ export default function DemoPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">Authoritarian Consolidation Index</h1>
+          <h1 className="text-3xl font-bold text-slate-800 mb-2">Polybius</h1>
           <p className="text-slate-600">Demo View - Sample Data for United States</p>
           <div className="mt-2 inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm">
             Demo Mode - Not Live Data

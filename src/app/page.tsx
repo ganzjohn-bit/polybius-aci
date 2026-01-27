@@ -108,6 +108,21 @@ interface OpEdData {
   interpretation: string[];
 }
 
+interface LakatosPrediction {
+  id: string;
+  modelId: string;
+  hypothesis: string;
+  timeframe: string;
+  generatedDate: string;
+  targetDate: string;
+  conditions: string;
+  refutationConditions: string;
+  status: 'pending' | 'confirmed' | 'refuted' | 'ambiguous';
+  outcome?: string;
+  outcomeDate?: string;
+  novelty: 'novel' | 'known' | 'retrodiction';
+}
+
 interface DefectionArticle {
   title: string;
   description: string;
@@ -257,7 +272,7 @@ interface ComparativeAnalysisData {
   interpretation: string[];
 }
 
-export default function ACICalculator() {
+export default function PolybiusCalculator() {
   const [scores, setScores] = useState({
     judicial: 0,
     federalism: 0,
@@ -296,6 +311,9 @@ export default function ACICalculator() {
   const [comparativeData, setComparativeData] = useState<ComparativeAnalysisData | null>(null);
   const [isFetchingComparative, setIsFetchingComparative] = useState(false);
   const [socialError, setSocialError] = useState('');
+  const [showLakatos, setShowLakatos] = useState(false);
+  const [lakatosPredictions, setLakatosPredictions] = useState<Record<string, LakatosPrediction[]> | null>(null);
+  const [expandedProgramme, setExpandedProgramme] = useState<string | null>(null);
   const [activeModels, setActiveModels] = useState({
     linz: false,
     levitsky: false,
@@ -324,8 +342,16 @@ export default function ACICalculator() {
   }, []);
 
   const saveApiKey = () => {
-    localStorage.setItem('anthropic-api-key', apiKey);
-    localStorage.setItem('news-api-key', newsApiKey);
+    console.log('Saving API key, length:', apiKey?.length);
+    if (apiKey) {
+      localStorage.setItem('anthropic-api-key', apiKey);
+      console.log('Saved to localStorage');
+    } else {
+      console.log('API key is empty, not saving');
+    }
+    if (newsApiKey) {
+      localStorage.setItem('news-api-key', newsApiKey);
+    }
     setShowSettings(false);
   };
 
@@ -763,6 +789,7 @@ On markets: Markets represent one of the "rackets"—industrial/financial capita
     setSocialError('');
 
     try {
+      console.log('Sending headlines request:', { country, hasApiKey: !!apiKey, apiKeyLength: apiKey?.length });
       const response = await fetch('/api/headlines', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1166,7 +1193,7 @@ On markets: Markets represent one of the "rackets"—industrial/financial capita
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Authoritarian Consolidation Index</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Polybius</h1>
             <p className="text-slate-600 text-lg">A framework for assessing structural vulnerability to democratic backsliding</p>
           </div>
           <button
@@ -1195,7 +1222,10 @@ On markets: Markets represent one of the "rackets"—industrial/financial capita
                 <input
                   type="password"
                   value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  onChange={(e) => {
+                    console.log('API key input changed, new length:', e.target.value.length);
+                    setApiKey(e.target.value);
+                  }}
                   placeholder="sk-ant-api03-..."
                   className="w-full px-4 py-3 text-lg border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 />
@@ -2627,6 +2657,129 @@ On markets: Markets represent one of the "rackets"—industrial/financial capita
                 </p>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Lakatosian Research Programme */}
+        {hasNonZeroScores && (
+          <div className="mb-10 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-slate-800 mb-1">Research Programme Analysis</h3>
+                <p className="text-slate-600 text-sm">Lakatosian evaluation: which theoretical frameworks are generating successful predictions?</p>
+              </div>
+              <button
+                onClick={async () => {
+                  if (!lakatosPredictions) {
+                    try {
+                      const response = await fetch('/api/lakatos', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'generateAllPredictions', scores, countryContext: country })
+                      });
+                      const data = await response.json();
+                      setLakatosPredictions(data.predictions);
+                    } catch (err) {
+                      console.error('Failed to generate predictions:', err);
+                    }
+                  }
+                  setShowLakatos(!showLakatos);
+                }}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors text-sm"
+              >
+                {showLakatos ? 'Hide' : 'Generate'} Predictions
+              </button>
+            </div>
+
+            {showLakatos && (
+              <div className="space-y-4">
+                <div className="p-4 bg-white/70 rounded-lg border border-indigo-100">
+                  <p className="text-sm text-slate-700 mb-3">
+                    <strong>Lakatos's Method:</strong> A research programme is <span className="text-green-700 font-semibold">progressive</span> if it
+                    predicts novel facts that are later confirmed. It is <span className="text-red-700 font-semibold">degenerating</span> if it only
+                    explains facts after the fact or requires ad-hoc modifications to avoid refutation.
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Each theoretical model below has generated testable predictions based on current factor scores. Track outcomes over time to evaluate which frameworks best explain democratic backsliding.
+                  </p>
+                </div>
+
+                {lakatosPredictions && Object.entries(lakatosPredictions).map(([modelId, predictions]) => {
+                  const model = theoreticalModels.find(m => m.id === modelId);
+                  if (!model || !Array.isArray(predictions) || predictions.length === 0) return null;
+
+                  return (
+                    <div key={modelId} className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                      <div
+                        className="p-4 cursor-pointer hover:bg-slate-50 transition-colors"
+                        onClick={() => setExpandedProgramme(expandedProgramme === modelId ? null : modelId)}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h4 className="font-semibold text-slate-800">{model.name}</h4>
+                            <p className="text-xs text-slate-500">{predictions.length} testable predictions generated</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">
+                              {predictions.filter(p => p.status === 'pending').length} pending
+                            </span>
+                            <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${expandedProgramme === modelId ? 'rotate-180' : ''}`} />
+                          </div>
+                        </div>
+                      </div>
+
+                      {expandedProgramme === modelId && (
+                        <div className="border-t border-slate-200 p-4 bg-slate-50">
+                          <div className="space-y-3">
+                            {predictions.map(pred => (
+                              <div key={pred.id} className="p-3 bg-white rounded border border-slate-200">
+                                <p className="text-sm text-slate-800 font-medium mb-2">{pred.hypothesis}</p>
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  <div>
+                                    <span className="text-slate-500">Timeframe:</span>{' '}
+                                    <span className="text-slate-700">{pred.timeframe}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-500">Type:</span>{' '}
+                                    <span className={`font-medium ${pred.novelty === 'novel' ? 'text-indigo-600' : 'text-slate-600'}`}>
+                                      {pred.novelty === 'novel' ? 'Novel prediction' : 'Retrodiction'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="mt-2 text-xs">
+                                  <div className="text-green-700">
+                                    <strong>Confirms if:</strong> {pred.conditions}
+                                  </div>
+                                  <div className="text-red-700 mt-1">
+                                    <strong>Refutes if:</strong> {pred.refutationConditions}
+                                  </div>
+                                </div>
+                                <div className="mt-2 flex gap-2">
+                                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                    pred.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                    pred.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                                    pred.status === 'refuted' ? 'bg-red-100 text-red-700' :
+                                    'bg-slate-100 text-slate-600'
+                                  }`}>
+                                    {pred.status.toUpperCase()}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {!lakatosPredictions && (
+                  <div className="text-center py-8 text-slate-500">
+                    Click "Generate Predictions" to create testable hypotheses from each theoretical model
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

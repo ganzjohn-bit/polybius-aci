@@ -309,6 +309,332 @@ export const historicalCases: HistoricalCase[] = [
     sources: ['Levitsky - Transforming Labor-Based Parties', 'Cavarozzi', 'V-Dem']
   },
 
+  // === ADDITIONAL POLITY-DOCUMENTED COLLAPSES ===
+  {
+    id: 'austria-1933',
+    country: 'Austria',
+    period: 'Dollfuss Austrofascism',
+    yearStart: 1932,
+    yearEnd: 1934,
+    outcome: 'consolidated',
+    outcomeScore: 90,
+    factors: {
+      judicial: 60,
+      federalism: 35,
+      political: 70, // Parliament dissolved, SPÖ banned
+      media: 60,
+      civil: 65, // Schutzbund destroyed after 1934 uprising
+      publicOpinion: 55,
+      mobilizationalBalance: 65, // Heimwehr vs Schutzbund, then Schutzbund crushed
+      stateCapacity: 55,
+      corporateCompliance: 60,
+      electionInterference: 75,
+    },
+    notes: 'Polity score dropped from 10 to -7 (1933-34). Dollfuss used emergency powers, dissolved parliament. Civil war Feb 1934 crushed Social Democrats. Preempted Nazi takeover but created authoritarian state.',
+    sources: ['Polity5', 'Tálos - Austrofaschismus', 'V-Dem']
+  },
+  {
+    id: 'greece-colonels',
+    country: 'Greece',
+    period: 'Colonels Coup',
+    yearStart: 1965,
+    yearEnd: 1967,
+    outcome: 'consolidated',
+    outcomeScore: 95,
+    factors: {
+      judicial: 55,
+      federalism: 30, // Greece centralized
+      political: 60, // Political instability, palace-parliament conflict
+      media: 50,
+      civil: 45, // Left organizations existed but fragmented
+      publicOpinion: 50, // Polarized between left and right
+      mobilizationalBalance: 55,
+      stateCapacity: 70, // Military cohesive
+      corporateCompliance: 55,
+      electionInterference: 70, // 1967 elections cancelled by coup
+    },
+    notes: 'Polity: 8 to -7 overnight (1967). Military preemptive coup fearing left electoral victory. Junta lasted until 1974 Cyprus disaster. Shows military veto in polarized democracy.',
+    sources: ['Polity5', 'Clogg - A Concise History of Greece', 'V-Dem']
+  },
+  {
+    id: 'peru-fujimori',
+    country: 'Peru',
+    period: 'Fujimori Autogolpe',
+    yearStart: 1990,
+    yearEnd: 1992,
+    outcome: 'consolidated',
+    outcomeScore: 75,
+    factors: {
+      judicial: 65, // Courts dissolved in autogolpe
+      federalism: 40,
+      political: 60, // Congress dissolved, constitution rewritten
+      media: 50, // Initially plural, then Montesinos bought tabloids
+      civil: 45, // Sendero emergency weakened civil society
+      publicOpinion: 60, // Fujimori popular (inflation, Sendero defeated)
+      mobilizationalBalance: 55,
+      stateCapacity: 60, // SIN under Montesinos
+      corporateCompliance: 55,
+      electionInterference: 55,
+    },
+    notes: 'Polity: 7 to -3 (1992 autogolpe). Popular president dissolved congress with military backing. Security crisis (Sendero Luminoso) enabled. Eventually fell to corruption scandal.',
+    sources: ['Polity5', 'Cameron - The Fujimori Legacy', 'V-Dem']
+  },
+  {
+    id: 'philippines-marcos',
+    country: 'Philippines',
+    period: 'Marcos Martial Law',
+    yearStart: 1969,
+    yearEnd: 1972,
+    outcome: 'consolidated',
+    outcomeScore: 85,
+    factors: {
+      judicial: 60, // Supreme Court initially resisted then capitulated
+      federalism: 35,
+      political: 65, // Opposition arrested, Senate abolished
+      media: 70, // Media closed, then reopened under control
+      civil: 55, // Student movement crushed
+      publicOpinion: 50, // Initial support for "discipline"
+      mobilizationalBalance: 60,
+      stateCapacity: 65, // Military empowered
+      corporateCompliance: 60, // Crony capitalism created
+      electionInterference: 75,
+    },
+    notes: 'Polity: 2 to -9 (1972 martial law). Used communist threat to justify. "Constitutional authoritarianism." Eventually toppled by People Power 1986.',
+    sources: ['Polity5', 'Thompson - The Anti-Marcos Struggle', 'V-Dem']
+  },
+  {
+    id: 'uruguay-1973',
+    country: 'Uruguay',
+    period: 'Civic-Military Dictatorship',
+    yearStart: 1971,
+    yearEnd: 1973,
+    outcome: 'consolidated',
+    outcomeScore: 85,
+    factors: {
+      judicial: 55,
+      federalism: 30,
+      political: 65, // Congress dissolved, parties banned
+      media: 60,
+      civil: 60, // Strong unions crushed (CNT general strike failed)
+      publicOpinion: 45, // Tupamaro threat used as justification
+      mobilizationalBalance: 55, // Unions tried general strike but military won
+      stateCapacity: 70,
+      corporateCompliance: 55,
+      electionInterference: 70,
+    },
+    notes: 'Polity: 10 to -9 (1973). "Switzerland of South America" fell. Gradual military encroachment then coup. CNT general strike resistance crushed. Returned to democracy 1984.',
+    sources: ['Polity5', 'Gillespie - Negotiating Democracy', 'V-Dem']
+  },
+  {
+    id: 'thailand-2014',
+    country: 'Thailand',
+    period: 'NCPO Coup',
+    yearStart: 2013,
+    yearEnd: 2014,
+    outcome: 'consolidated',
+    outcomeScore: 80,
+    factors: {
+      judicial: 65, // Courts dissolved parliament, enabled coup
+      federalism: 35,
+      political: 70, // Thaksin parties repeatedly dissolved, protests
+      media: 60, // Lese-majeste laws, military controls
+      civil: 50, // Red vs Yellow shirt division
+      publicOpinion: 50, // Polarized, Bangkok vs rural
+      mobilizationalBalance: 55, // Yellow shirts + military vs Red shirts
+      stateCapacity: 65, // Military experienced at coups
+      corporateCompliance: 55,
+      electionInterference: 65, // 2014 election invalidated by courts
+    },
+    notes: 'Polity: 7 to -3 (2014). 12th coup since 1932. Courts as "judicial coup" preceded military coup. Palace-military-Bangkok elite alliance vs Thaksin populism.',
+    sources: ['Polity5', 'Hewison - Thailand: Contestation and Crisis', 'V-Dem']
+  },
+  {
+    id: 'nicaragua-ortega',
+    country: 'Nicaragua',
+    period: 'Ortega Consolidation',
+    yearStart: 2007,
+    yearEnd: 2021,
+    outcome: 'consolidated',
+    outcomeScore: 85,
+    factors: {
+      judicial: 75, // Supreme Court packed, term limits removed
+      federalism: 60,
+      political: 80, // Opposition leaders jailed 2021, parties banned
+      media: 70, // La Prensa raided, Confidencial closed
+      civil: 75, // 2018 protests crushed, NGOs criminalized
+      publicOpinion: 55, // Base support but 2018 showed discontent
+      mobilizationalBalance: 70, // Sandinista base vs fragmented opposition
+      stateCapacity: 60,
+      corporateCompliance: 60, // Business initially accommodated, then targeted
+      electionInterference: 80, // 2021 election: opponents jailed before
+    },
+    notes: 'Polity: 9 to 2 to eventually autocracy. Slow erosion then acceleration after 2018 protests. Used COVID and crime as justification for crackdown.',
+    sources: ['Polity5', 'Marti i Puig - Nicaragua', 'V-Dem']
+  },
+
+  // === ADDITIONAL RESISTED/DEMOCRATIZED CASES ===
+  {
+    id: 'colombia-uribe',
+    country: 'Colombia',
+    period: 'Uribe Third Term Blocked',
+    yearStart: 2002,
+    yearEnd: 2010,
+    outcome: 'resisted',
+    outcomeScore: 30,
+    factors: {
+      judicial: 35, // Constitutional Court blocked third term
+      federalism: 40,
+      political: 45, // Congress passed amendment, but Court blocked
+      media: 40,
+      civil: 40,
+      publicOpinion: 55, // Uribe very popular (~70%)
+      mobilizationalBalance: 45,
+      stateCapacity: 55,
+      corporateCompliance: 45,
+      electionInterference: 35,
+    },
+    notes: 'Polity: Stayed at 7. Constitutional Court blocked popular president from third term despite congressional amendment. Judicial independence held against popular pressure.',
+    sources: ['Polity5', 'Bejarano - Precarious Democracies', 'V-Dem']
+  },
+  {
+    id: 'ecuador-correa',
+    country: 'Ecuador',
+    period: 'Correa Erosion Then Reversal',
+    yearStart: 2007,
+    yearEnd: 2017,
+    outcome: 'resisted',
+    outcomeScore: 40,
+    factors: {
+      judicial: 55, // Courts captured but successor (Moreno) independent
+      federalism: 45,
+      political: 55, // Opposition weakened but not eliminated
+      media: 55, // Media law restrictive but private media survived
+      civil: 50,
+      publicOpinion: 55, // Correa popular but Moreno won then broke
+      mobilizationalBalance: 50,
+      stateCapacity: 50,
+      corporateCompliance: 50,
+      electionInterference: 45,
+    },
+    notes: 'Polity: 5 to 7. Correa consolidated power but successor Lenin Moreno reversed course, allied with opposition, prosecuted Correa. Shows path dependence not guaranteed.',
+    sources: ['Polity5', 'de la Torre - Populist Seduction', 'V-Dem']
+  },
+  {
+    id: 'portugal-transition',
+    country: 'Portugal',
+    period: 'Carnation Revolution',
+    yearStart: 1974,
+    yearEnd: 1976,
+    outcome: 'democratized',
+    outcomeScore: 15,
+    factors: {
+      judicial: 45,
+      federalism: 35,
+      political: 35, // Multi-party democracy established
+      media: 35,
+      civil: 35, // Unions, parties legalized
+      publicOpinion: 30, // Desire for change after colonial wars
+      mobilizationalBalance: 35, // MFA officers, workers councils
+      stateCapacity: 45, // Military split, MFA reformist
+      corporateCompliance: 45,
+      electionInterference: 20,
+    },
+    notes: 'Polity: -9 to 10 (1974-76). Military coup but democratizing. PREC period (ongoing revolutionary process) chaotic but consolidated into democracy. EC anchor important.',
+    sources: ['Polity5', 'Maxwell - Making of Portuguese Democracy', 'V-Dem']
+  },
+  {
+    id: 'czech-1989',
+    country: 'Czechoslovakia',
+    period: 'Velvet Revolution',
+    yearStart: 1989,
+    yearEnd: 1990,
+    outcome: 'democratized',
+    outcomeScore: 10,
+    factors: {
+      judicial: 40,
+      federalism: 40, // Federal state, later split peacefully
+      political: 30, // Civic Forum, genuine competition
+      media: 35,
+      civil: 35, // Charter 77 network, intellectuals
+      publicOpinion: 25, // Mass demonstrations
+      mobilizationalBalance: 30, // Regime had no mobilized base left
+      stateCapacity: 40, // Party-state collapsed
+      corporateCompliance: 40,
+      electionInterference: 20,
+    },
+    notes: 'Polity: -7 to 10 (1989-90). Rapid transition. Charter 77 provided opposition network. Havel moral authority. No violence. Split with Slovakia 1993 also peaceful.',
+    sources: ['Polity5', 'Garton Ash - Magic Lantern', 'V-Dem']
+  },
+  {
+    id: 'taiwan-transition',
+    country: 'Taiwan',
+    period: 'Democratic Transition',
+    yearStart: 1987,
+    yearEnd: 1996,
+    outcome: 'democratized',
+    outcomeScore: 10,
+    factors: {
+      judicial: 40, // Courts gained independence
+      federalism: 30,
+      political: 25, // DPP legalized, rotation achieved 2000
+      media: 35, // Press liberalized
+      civil: 35, // Presbyterian church, Tangwai movement
+      publicOpinion: 30, // Middle class wanted democracy, identity shift
+      mobilizationalBalance: 35,
+      stateCapacity: 50, // KMT state strong but reformed
+      corporateCompliance: 40, // Business adapted
+      electionInterference: 25, // 1996 first direct presidential election
+    },
+    notes: 'Polity: -1 to 10 (1987-96). Gradual liberalization. Chiang Ching-kuo began, Lee Teng-hui completed. No rupture, negotiated transition. 2000 rotation to DPP confirmed.',
+    sources: ['Polity5', 'Rigger - Politics in Taiwan', 'V-Dem']
+  },
+  {
+    id: 'ghana-transition',
+    country: 'Ghana',
+    period: 'Rawlings Transition',
+    yearStart: 1992,
+    yearEnd: 2000,
+    outcome: 'democratized',
+    outcomeScore: 15,
+    factors: {
+      judicial: 40,
+      federalism: 35,
+      political: 35, // NPP won 2000, genuine rotation
+      media: 40,
+      civil: 40,
+      publicOpinion: 35,
+      mobilizationalBalance: 40,
+      stateCapacity: 45,
+      corporateCompliance: 45,
+      electionInterference: 30,
+    },
+    notes: 'Polity: -7 to 8 (1992-2000). Rawlings coup leader became elected president, then allowed rotation. 2000 election key test: Kufuor won, Rawlings conceded.',
+    sources: ['Polity5', 'Gyimah-Boadi - Africas Turn?', 'V-Dem']
+  },
+  {
+    id: 'mexico-2000',
+    country: 'Mexico',
+    period: 'End of PRI Hegemony',
+    yearStart: 1994,
+    yearEnd: 2000,
+    outcome: 'democratized',
+    outcomeScore: 20,
+    factors: {
+      judicial: 45, // IFE created, courts strengthened
+      federalism: 40, // Governors gained autonomy
+      political: 35, // PAN won 2000, first rotation since 1929
+      media: 45, // Televisa dominant but some opening
+      civil: 40, // Civil society grew after 1985 earthquake, 1994 crisis
+      publicOpinion: 35,
+      mobilizationalBalance: 40, // PRI corporatist structures weakened
+      stateCapacity: 50, // State strong but reformed
+      corporateCompliance: 45,
+      electionInterference: 35, // IFE ensured clean 2000 election
+    },
+    notes: 'Polity: 4 to 8 (1994-2000). Gradual transition within regime. IFE (electoral institute) key. 1988 fraud created pressure. 2000 Fox victory confirmed democratization.',
+    sources: ['Polity5', 'Magaloni - Voting for Autocracy', 'V-Dem']
+  },
+
   // === US HISTORICAL STRESS POINTS ===
   {
     id: 'us-1850s',

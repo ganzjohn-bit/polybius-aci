@@ -12,10 +12,13 @@ interface ApiResponse {
 
 export async function POST(request: NextRequest) {
   try {
-    const { country, apiKey } = await request.json();
+    const body = await request.json();
+    const { country, apiKey } = body;
+
+    console.log('Headlines request received:', { country, hasApiKey: !!apiKey, apiKeyLength: apiKey?.length });
 
     if (!apiKey) {
-      return NextResponse.json({ error: 'Anthropic API key required' }, { status: 400 });
+      return NextResponse.json({ error: 'Anthropic API key required', received: Object.keys(body) }, { status: 400 });
     }
 
     if (!country) {

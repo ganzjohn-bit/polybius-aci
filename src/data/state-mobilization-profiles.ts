@@ -32,6 +32,7 @@ export const stateProfiles: StateProfile[] = [
     keyOppositionInfrastructure: [
       'ISAIAH (200 congregations + mosques, Faith in Action affiliate) - activated within days of ICE surge',
       'TakeAction Minnesota (coalition hub)',
+      'Twin Cities DSA (1,500+ members, electoral + labor organizing)',
       'Education Minnesota (teachers, $34M dues)',
       'SEIU Local 26 (4,000 janitors)',
       'CWA Local 7250 (led general strike coordination)',
@@ -75,6 +76,8 @@ export const stateProfiles: StateProfile[] = [
     keyOppositionInfrastructure: [
       'Texas Organizing Project (TOP)',
       'Texas AFT (teachers)',
+      'Austin DSA (2,000+ members, most active in state)',
+      'Houston DSA',
       'LULAC chapters',
       'Texas Civil Rights Project',
       'Workers Defense Project (Austin)',
@@ -214,6 +217,7 @@ export const stateProfiles: StateProfile[] = [
       'Michigan AFL-CIO',
       'Michigan Education Association',
       'SEIU Healthcare Michigan',
+      'Metro Detroit DSA (1,000+ members)',
       'Detroit Action',
       'Black churches (Detroit)',
       'Arab American community (Dearborn)',
@@ -247,6 +251,8 @@ export const stateProfiles: StateProfile[] = [
       'Wisconsin AFL-CIO (weakened by Act 10 but surviving)',
       'WEAC (teachers)',
       'SEIU Wisconsin',
+      'Madison DSA (active, university town base)',
+      'Milwaukee DSA',
       'Voces de la Frontera (immigrant rights)',
       'Black Leaders Organizing for Communities (BLOC)',
       'Citizen Action of Wisconsin',
@@ -348,11 +354,14 @@ export const stateProfiles: StateProfile[] = [
       'Pennsylvania AFL-CIO',
       'PSEA (teachers)',
       'SEIU Healthcare Pennsylvania',
+      'Philly DSA (3,000+ members, elected officials)',
+      'Pittsburgh DSA',
       'UNITE HERE (Philadelphia hotels)',
       'Philadelphia labor council',
       'Black churches (Philadelphia)',
       'One PA (statewide coordination)',
-      'Neighborhood Networks (Pittsburgh)'
+      'Neighborhood Networks (Pittsburgh)',
+      'Reclaim Philadelphia'
     ],
     keyRegimeInfrastructure: [
       'Pennsylvania GOP (strong in rural areas)',
