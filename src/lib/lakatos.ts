@@ -5,6 +5,714 @@
 // - Predictions: testable hypotheses generated from the model
 // - Track record: progressive (predicts novel facts) vs degenerating (only post-hoc explanation)
 
+// =============================================================================
+// CRISIS & INFLECTION POINT FRAMEWORK (v0.1 sketch)
+// =============================================================================
+//
+// The basic insight: authoritarian consolidation is not linear. Crises create
+// discontinuous jumps - inflection points where trajectories can accelerate,
+// reverse, or transform. The SAME crisis can push in opposite directions
+// depending on existing conditions.
+//
+// Key concepts:
+// 1. Crisis Type - the nature of the exogenous shock
+// 2. Regime Phase - where we are in consolidation (early/mid/late/failing)
+// 3. Structural Conditions - civil society strength, elite cohesion, etc.
+// 4. Model-Specific Interpretation - each theory predicts different outcomes
+// 5. Path Dependency - sequence matters, some transitions are irreversible
+
+export type CrisisType =
+  | 'economic'           // recession, inflation, financial panic, unemployment spike
+  | 'legitimacy'         // scandal, corruption revelation, policy failure, hypocrisy exposed
+  | 'succession'         // leader incapacity, death, intra-elite power struggle
+  | 'external'           // war, international sanctions, foreign intervention, treaty violation
+  | 'mobilization'       // mass protest crosses critical threshold
+  | 'repression_backfire' // crackdown delegitimizes rather than intimidates
+  | 'defection_cascade'  // elite defections reach tipping point
+  | 'institutional'      // constitutional crisis, court confrontation, election dispute
+  | 'security'           // terrorism, political violence, assassination
+  | 'media'              // major leak, whistleblower, investigative exposé
+
+export type RegimePhase =
+  | 'pre_authoritarian'  // democratic but with warning signs (ACI < 25)
+  | 'early_consolidation' // initial moves against institutions (ACI 25-40)
+  | 'mid_consolidation'   // significant erosion underway (ACI 40-60)
+  | 'late_consolidation'  // near-complete capture (ACI 60-80)
+  | 'consolidated'        // full authoritarian control (ACI > 80)
+  | 'failing_attempt'     // consolidation stalling or reversing (ACI declining)
+
+export interface Crisis {
+  id: string;
+  type: CrisisType;
+  description: string;
+  date: string;
+  severity: number; // 0-100
+  resolved: boolean;
+  outcome?: 'accelerated_consolidation' | 'decelerated_consolidation' | 'reversed_trajectory' | 'no_effect' | 'pending';
+}
+
+export interface InflectionPoint {
+  crisisId: string;
+  phase: RegimePhase;
+  structuralConditions: {
+    civilSocietyStrength: 'weak' | 'moderate' | 'strong';
+    eliteCohesion: 'fragmented' | 'divided' | 'unified';
+    popularLegitimacy: 'low' | 'contested' | 'high';
+    repressiveCapacity: 'low' | 'moderate' | 'high';
+    internationalConstraints: 'none' | 'weak' | 'strong';
+  };
+  modelPredictions: Record<string, {
+    predictedOutcome: string;
+    confidence: number;
+    reasoning: string;
+  }>;
+}
+
+// How each model interprets crisis-phase interactions
+export const crisisInterpretations: Record<string, Record<CrisisType, {
+  duringConsolidation: string;
+  duringFailure: string;
+  keyVariable: string;
+}>> = {
+  levitsky: {
+    economic: {
+      duringConsolidation: 'Economic crisis provides pretext for emergency powers, accelerates institutional capture if guardrails already weakened',
+      duringFailure: 'Economic crisis blamed on regime, accelerates elite defection and opposition unity',
+      keyVariable: 'Whether institutions retain independence to constrain emergency response'
+    },
+    legitimacy: {
+      duringConsolidation: 'Scandal absorbed if norms already eroded; opposition lacks institutional tools to enforce accountability',
+      duringFailure: 'Scandal becomes focal point for elite coordination against regime',
+      keyVariable: 'State of norm erosion and opposition institutional capacity'
+    },
+    succession: {
+      duringConsolidation: 'Succession crisis reveals regime fragility, may trigger elite defection if no clear successor',
+      duringFailure: 'Succession crisis accelerates collapse as factions compete',
+      keyVariable: 'Elite cohesion and institutionalization of succession'
+    },
+    external: {
+      duringConsolidation: 'External threat enables rally effect, justifies expanded executive power',
+      duringFailure: 'External pressure (sanctions, isolation) compounds regime weakness',
+      keyVariable: 'Credibility of external threat and international regime preferences'
+    },
+    mobilization: {
+      duringConsolidation: 'Mass protest tests repressive capacity; success emboldens further repression, failure may trigger defection',
+      duringFailure: 'Mass protest becomes revolution threat, accelerates elite exit',
+      keyVariable: 'Repressive capacity and willingness of security forces'
+    },
+    repression_backfire: {
+      duringConsolidation: 'Backfire rare when norms eroded; regime supporters rationalize',
+      duringFailure: 'Backfire accelerates delegitimization, potential cascade',
+      keyVariable: 'Remaining norm constraints and media freedom'
+    },
+    defection_cascade: {
+      duringConsolidation: 'Early defections can be punished, used to enforce discipline',
+      duringFailure: 'Defection cascade is the mechanism of collapse',
+      keyVariable: 'Elite coordination capacity and exit costs'
+    },
+    institutional: {
+      duringConsolidation: 'Constitutional crisis is the consolidation mechanism - regime wins these confrontations',
+      duringFailure: 'Institutional crisis exposes regime weakness, courts/legislature reassert independence',
+      keyVariable: 'Which side security forces and key institutions back'
+    },
+    security: {
+      duringConsolidation: 'Security crisis justifies emergency measures, surveillance, restrictions',
+      duringFailure: 'Security crisis may provide temporary rally effect even for failing regime',
+      keyVariable: 'Whether regime can credibly claim to provide security'
+    },
+    media: {
+      duringConsolidation: 'Exposé dismissed as "fake news" if media already captured/delegitimized',
+      duringFailure: 'Exposé provides ammunition for opposition, focal point for elite defection',
+      keyVariable: 'Media independence and credibility with regime supporters'
+    }
+  },
+
+  bermanRiley: {
+    economic: {
+      duringConsolidation: 'Economic crisis atomizes workers, weakens unions, reduces civil society capacity',
+      duringFailure: 'Economic crisis can strengthen solidarity if organizational infrastructure intact',
+      keyVariable: 'Pre-existing organizational density and labor movement strength'
+    },
+    legitimacy: {
+      duringConsolidation: 'Without strong civil society to amplify, scandals fade quickly',
+      duringFailure: 'Civil society organizations can sustain pressure, prevent normalization',
+      keyVariable: 'Organizational capacity to maintain sustained campaigns'
+    },
+    succession: {
+      duringConsolidation: 'Civil society too weak to exploit elite divisions',
+      duringFailure: 'Strong civil society can ally with defecting elites',
+      keyVariable: 'Whether civil society can coordinate with elite factions'
+    },
+    external: {
+      duringConsolidation: 'External threat weakens civil society as "fifth column" accusations',
+      duringFailure: 'International civil society linkages provide protection and resources',
+      keyVariable: 'Transnational civil society networks'
+    },
+    mobilization: {
+      duringConsolidation: 'Weak civil society means protests are spontaneous, uncoordinated, easily dispersed',
+      duringFailure: 'Strong civil society means protests are sustained, strategic, resilient',
+      keyVariable: 'Organizational infrastructure behind mobilization'
+    },
+    repression_backfire: {
+      duringConsolidation: 'Without organizations to document and amplify, repression is invisible',
+      duringFailure: 'Civil society documents abuses, maintains memory, builds solidarity',
+      keyVariable: 'Documentation and communication capacity'
+    },
+    defection_cascade: {
+      duringConsolidation: 'Defectors have nowhere to go - no civil society to receive them',
+      duringFailure: 'Civil society provides landing pad for elite defectors',
+      keyVariable: 'Whether alternative power centers exist outside regime'
+    },
+    institutional: {
+      duringConsolidation: 'Courts without civil society backing cannot enforce rulings',
+      duringFailure: 'Civil society mobilizes to defend institutional independence',
+      keyVariable: 'Civil society capacity for court defense and compliance pressure'
+    },
+    security: {
+      duringConsolidation: 'Security crisis used to target civil society organizations',
+      duringFailure: 'Civil society may provide alternative security/mutual aid',
+      keyVariable: 'Whether civil society is framed as security threat'
+    },
+    media: {
+      duringConsolidation: 'No organizational infrastructure to act on revelations',
+      duringFailure: 'Civil society amplifies and operationalizes media exposés',
+      keyVariable: 'Links between investigative media and organized civil society'
+    }
+  },
+
+  marxian: {
+    economic: {
+      duringConsolidation: 'Economic crisis is THE key variable - reveals capital-regime alliance as capital demands discipline of labor',
+      duringFailure: 'Economic crisis may cause capital to abandon failing regime that cannot deliver stability',
+      keyVariable: 'Profit rates, capital strike threats, business confidence'
+    },
+    legitimacy: {
+      duringConsolidation: 'Ideology is superstructure; scandal irrelevant if material interests served',
+      duringFailure: 'Legitimacy crisis may reflect deeper crisis of accumulation',
+      keyVariable: 'Whether scandal threatens capital accumulation'
+    },
+    succession: {
+      duringConsolidation: 'Capital will back whichever faction best serves accumulation',
+      duringFailure: 'Succession crisis is opportunity for class realignment',
+      keyVariable: 'Which faction capital prefers'
+    },
+    external: {
+      duringConsolidation: 'War/sanctions may serve military-industrial capital faction',
+      duringFailure: 'International capital may withdraw support from unstable regime',
+      keyVariable: 'International capital flows and investment patterns'
+    },
+    mobilization: {
+      duringConsolidation: 'Working class mobilization is the primary threat - regime exists to suppress it',
+      duringFailure: 'Labor mobilization can be decisive in bringing down regime',
+      keyVariable: 'Strike activity, union density, class consciousness'
+    },
+    repression_backfire: {
+      duringConsolidation: 'Repression of labor is the point; backfire only if it threatens production',
+      duringFailure: 'Repression backfire may trigger capital flight',
+      keyVariable: 'Impact on production and accumulation'
+    },
+    defection_cascade: {
+      duringConsolidation: 'Capital defection is what matters; political elites follow capital',
+      duringFailure: 'Capital abandonment precedes and causes political collapse',
+      keyVariable: 'Business community positioning'
+    },
+    institutional: {
+      duringConsolidation: 'Institutions serve class interests; crisis just reveals this',
+      duringFailure: 'Institutional crisis may create opening for working class advance',
+      keyVariable: 'Which class forces can exploit institutional vacuum'
+    },
+    security: {
+      duringConsolidation: 'Security crisis justifies discipline of labor under emergency',
+      duringFailure: 'Security crisis reveals regime inability to maintain order capital needs',
+      keyVariable: 'Impact on conditions for accumulation'
+    },
+    media: {
+      duringConsolidation: 'Media owned by capital; exposé only matters if capital wants it to',
+      duringFailure: 'Capital-owned media may turn against regime when useful',
+      keyVariable: 'Media ownership and capital interests'
+    }
+  },
+
+  paxton: {
+    economic: {
+      duringConsolidation: 'Stage 3-4: Economic crisis may deepen elite alliance (need strong hand) or fracture it (blame game)',
+      duringFailure: 'Economic crisis prevents stage advancement; movement stuck or regresses',
+      keyVariable: 'Current stage and elite alliance stability'
+    },
+    legitimacy: {
+      duringConsolidation: 'Stage 4: Scandal may trigger move to Stage 5 radicalization (purge "traitors") or entropy',
+      duringFailure: 'Scandal prevents advancement to next stage',
+      keyVariable: 'Which stage and whether scandal implicates leader or movement'
+    },
+    succession: {
+      duringConsolidation: 'Fascist movements are leader-centric; succession crisis existential',
+      duringFailure: 'Succession crisis accelerates Stage 5 entropy',
+      keyVariable: 'Cult of personality strength and institutional depth'
+    },
+    external: {
+      duringConsolidation: 'Stage 4-5: External war is classic radicalization path',
+      duringFailure: 'External defeat accelerates entropy and collapse',
+      keyVariable: 'Military capacity and international correlation of forces'
+    },
+    mobilization: {
+      duringConsolidation: 'Counter-mobilization may slow stage progression',
+      duringFailure: 'Mass mobilization can force stage regression',
+      keyVariable: 'Relative mobilization capacity of movement vs opposition'
+    },
+    repression_backfire: {
+      duringConsolidation: 'Stage 4: Backfire may trigger radicalization spiral',
+      duringFailure: 'Backfire accelerates elite defection and stage regression',
+      keyVariable: 'Current stage and elite alliance strength'
+    },
+    defection_cascade: {
+      duringConsolidation: 'Stage 3 conservative alliance is key; defection can prevent Stage 4',
+      duringFailure: 'Elite defection is mechanism of stage regression',
+      keyVariable: 'Conservative elite calculation of interests'
+    },
+    institutional: {
+      duringConsolidation: 'Each stage involves specific institutional confrontations',
+      duringFailure: 'Losing institutional confrontation means stage regression',
+      keyVariable: 'Current stage and specific institution at stake'
+    },
+    security: {
+      duringConsolidation: 'Security crisis classic pretext for stage advancement',
+      duringFailure: 'Security failure may discredit regime',
+      keyVariable: 'Whether regime can claim to provide order'
+    },
+    media: {
+      duringConsolidation: 'Exposé effect depends on stage - earlier stages more vulnerable',
+      duringFailure: 'Exposé can prevent elite alliance formation (Stage 3 block)',
+      keyVariable: 'Current stage and target of exposé'
+    }
+  },
+
+  frankfurtSchool: {
+    economic: {
+      duringConsolidation: 'Economic crisis intensifies inter-racket competition for resources',
+      duringFailure: 'Economic crisis accelerates Behemoth dysfunction and racket warfare',
+      keyVariable: 'Which rackets control economic policy and who gets blamed'
+    },
+    legitimacy: {
+      duringConsolidation: 'Scandal is inter-racket warfare; one faction exposing another',
+      duringFailure: 'Scandal reveals Behemoth chaos, no unified will to cover up',
+      keyVariable: 'Which racket is implicated and who benefits'
+    },
+    succession: {
+      duringConsolidation: 'Succession is peak Behemoth dynamics - rackets compete for new leader control',
+      duringFailure: 'Succession crisis may cause Behemoth to fly apart',
+      keyVariable: 'Balance of power among rackets'
+    },
+    external: {
+      duringConsolidation: 'War reveals Behemoth dysfunction (competing commands, contradictory orders)',
+      duringFailure: 'External pressure may unite rackets temporarily or accelerate fragmentation',
+      keyVariable: 'Whether external threat creates common enemy or blame game'
+    },
+    mobilization: {
+      duringConsolidation: 'Protest response reveals inter-racket conflict (who controls security?)',
+      duringFailure: 'Rackets may separately negotiate with opposition',
+      keyVariable: 'Security apparatus cohesion'
+    },
+    repression_backfire: {
+      duringConsolidation: 'Backfire blamed on rival racket; internal purge follows',
+      duringFailure: 'Backfire accelerates racket defection',
+      keyVariable: 'Which racket controlled the repression'
+    },
+    defection_cascade: {
+      duringConsolidation: 'Individual racket defection (e.g., business) destabilizes Behemoth',
+      duringFailure: 'Rackets race to defect and position for post-regime',
+      keyVariable: 'Exit options for each racket'
+    },
+    institutional: {
+      duringConsolidation: 'Institutions are rackets; crisis is inter-racket warfare',
+      duringFailure: 'Institutional crisis reveals lack of unified state capacity',
+      keyVariable: 'Which rackets control which institutions'
+    },
+    security: {
+      duringConsolidation: 'Security crisis reveals competing security rackets',
+      duringFailure: 'Security failure blamed across rackets',
+      keyVariable: 'Security apparatus fragmentation'
+    },
+    media: {
+      duringConsolidation: 'Media is racket; exposé may be inter-racket attack',
+      duringFailure: 'Media racket may switch sides or fragment',
+      keyVariable: 'Media ownership and racket alignment'
+    }
+  },
+
+  svolik: {
+    economic: {
+      duringConsolidation: 'Economic crisis tests partisan tolerance; supporters may accept erosion for policy',
+      duringFailure: 'Economic crisis reduces partisan tolerance, enables elite coordination',
+      keyVariable: 'Whether supporters blame regime or external factors'
+    },
+    legitimacy: {
+      duringConsolidation: 'Scandal creates elite coordination opportunity if severe enough',
+      duringFailure: 'Scandal provides focal point for elite defection coordination',
+      keyVariable: 'Elite perception of regime survival probability'
+    },
+    succession: {
+      duringConsolidation: 'Succession uncertainty complicates elite calculations',
+      duringFailure: 'Succession crisis enables elite coordination against weakened leader',
+      keyVariable: 'Elite expectations about successor'
+    },
+    external: {
+      duringConsolidation: 'External threat may increase partisan tolerance',
+      duringFailure: 'External pressure may coordinate elite defection',
+      keyVariable: 'Whether threat is seen as regime-caused'
+    },
+    mobilization: {
+      duringConsolidation: 'Mass mobilization is signal to elites about regime support',
+      duringFailure: 'Large opposition mobilization enables elite coordination',
+      keyVariable: 'Elite interpretation of mobilization meaning'
+    },
+    repression_backfire: {
+      duringConsolidation: 'Backfire may shift elite calculations about regime viability',
+      duringFailure: 'Backfire becomes coordination signal for defection',
+      keyVariable: 'Whether elites see backfire as regime weakness signal'
+    },
+    defection_cascade: {
+      duringConsolidation: 'Early defectors are punished; deters others',
+      duringFailure: 'Each defection lowers cost of next defection (cascade)',
+      keyVariable: 'Number and prominence of defectors'
+    },
+    institutional: {
+      duringConsolidation: 'Institutional crisis tests whether elites will coordinate defense',
+      duringFailure: 'Elites may coordinate behind institution against regime',
+      keyVariable: 'Elite stake in threatened institution'
+    },
+    security: {
+      duringConsolidation: 'Security crisis may raise partisan tolerance temporarily',
+      duringFailure: 'Security failure is elite coordination opportunity',
+      keyVariable: 'Elite perception of regime security competence'
+    },
+    media: {
+      duringConsolidation: 'Exposé creates common knowledge, enables elite coordination',
+      duringFailure: 'Exposé is focal point for coordinated elite response',
+      keyVariable: 'Whether exposé becomes common knowledge among elites'
+    }
+  },
+
+  gramscian: {
+    economic: {
+      duringConsolidation: 'Economic crisis is organic crisis - opens space for hegemonic reconstruction',
+      duringFailure: 'Economic crisis reveals failure of regime hegemonic project',
+      keyVariable: 'Whether counter-hegemonic narrative can explain crisis'
+    },
+    legitimacy: {
+      duringConsolidation: 'Scandal is hegemonic struggle - regime will try to reframe',
+      duringFailure: 'Scandal reveals hegemonic failure, opens counter-hegemonic space',
+      keyVariable: 'Narrative control and framing capacity'
+    },
+    succession: {
+      duringConsolidation: 'Succession is moment of hegemonic vulnerability',
+      duringFailure: 'Succession crisis opens war of position',
+      keyVariable: 'Organic intellectuals available for counter-hegemony'
+    },
+    external: {
+      duringConsolidation: 'External threat may strengthen hegemonic narrative (nationalism)',
+      duringFailure: 'External pressure may delegitimize regime internationally',
+      keyVariable: 'Hegemonic framing of external relations'
+    },
+    mobilization: {
+      duringConsolidation: 'Counter-hegemonic mobilization is the goal',
+      duringFailure: 'Mobilization is manifestation of successful counter-hegemony',
+      keyVariable: 'Whether movement has coherent counter-hegemonic project'
+    },
+    repression_backfire: {
+      duringConsolidation: 'Backfire creates martyrs, strengthens counter-hegemonic narrative',
+      duringFailure: 'Backfire reveals regime reliance on coercion over consent',
+      keyVariable: 'Counter-hegemonic narrative capacity'
+    },
+    defection_cascade: {
+      duringConsolidation: 'Defectors become organic intellectuals for counter-hegemony',
+      duringFailure: 'Defection is symptom of hegemonic collapse',
+      keyVariable: 'Intellectual quality and reach of defectors'
+    },
+    institutional: {
+      duringConsolidation: 'Institutions are sites of hegemonic struggle',
+      duringFailure: 'Institutional crisis reveals hegemonic failure in civil society',
+      keyVariable: 'Civil society institution alignment'
+    },
+    security: {
+      duringConsolidation: 'Security crisis tests hegemony - can regime maintain consent under stress?',
+      duringFailure: 'Security failure delegitimizes regime claims',
+      keyVariable: 'Whether security crisis enables fear-based temporary consent'
+    },
+    media: {
+      duringConsolidation: 'Media is hegemonic apparatus; exposé is counter-hegemonic action',
+      duringFailure: 'Exposé accelerates hegemonic crisis',
+      keyVariable: 'Reach and credibility of counter-hegemonic media'
+    }
+  },
+
+  redistributive: {
+    economic: {
+      duringConsolidation: 'Economic crisis shifts bargaining power - may increase or decrease revolution threat',
+      duringFailure: 'Economic crisis may force elite concessions to reduce threat',
+      keyVariable: 'Direction of threat perception shift'
+    },
+    legitimacy: {
+      duringConsolidation: 'Scandal may not shift material calculations',
+      duringFailure: 'Scandal plus economic stress may trigger redistribution demands',
+      keyVariable: 'Whether scandal affects mass mobilization capacity'
+    },
+    succession: {
+      duringConsolidation: 'Succession uncertainty may increase elite risk aversion',
+      duringFailure: 'Masses may extract concessions during succession uncertainty',
+      keyVariable: 'Elite coordination during transition'
+    },
+    external: {
+      duringConsolidation: 'External threat may justify suppressing redistribution demands',
+      duringFailure: 'External isolation may weaken elite bargaining position',
+      keyVariable: 'Elite access to external resources and exit options'
+    },
+    mobilization: {
+      duringConsolidation: 'Mobilization is the revolution threat that drives elite calculations',
+      duringFailure: 'Strong mobilization forces elite concessions',
+      keyVariable: 'Credibility of revolution threat'
+    },
+    repression_backfire: {
+      duringConsolidation: 'Backfire increases perceived cost of repression in elite calculation',
+      duringFailure: 'Backfire shifts bargaining toward concessions',
+      keyVariable: 'Elite perception of repression costs vs redistribution costs'
+    },
+    defection_cascade: {
+      duringConsolidation: 'Elite defection reduces repressive capacity, shifts bargaining',
+      duringFailure: 'Defection is elite concession strategy (abandon hardliners)',
+      keyVariable: 'Whether defectors join redistribution coalition'
+    },
+    institutional: {
+      duringConsolidation: 'Institutional crisis may affect redistribution credibility',
+      duringFailure: 'Institutional crisis may lock in redistributive bargain',
+      keyVariable: 'Credibility of commitment mechanisms'
+    },
+    security: {
+      duringConsolidation: 'Security crisis may increase elite repressive capacity justification',
+      duringFailure: 'Security failure reveals limits of repressive capacity',
+      keyVariable: 'Actual vs perceived repressive capacity'
+    },
+    media: {
+      duringConsolidation: 'Exposé may affect mass calculation of regime strength',
+      duringFailure: 'Exposé of elite wealth may intensify redistribution demands',
+      keyVariable: 'Content of exposé (elite wealth vs regime weakness)'
+    }
+  },
+
+  linz: {
+    economic: {
+      duringConsolidation: 'Economic crisis may trigger presidential emergency powers',
+      duringFailure: 'Economic crisis blamed on executive, strengthens legislative resistance',
+      keyVariable: 'Which branch is blamed and constitutional emergency provisions'
+    },
+    legitimacy: {
+      duringConsolidation: 'Scandal may trigger impeachment standoff',
+      duringFailure: 'Scandal provides grounds for constitutional removal',
+      keyVariable: 'Impeachment provisions and legislative will'
+    },
+    succession: {
+      duringConsolidation: 'Fixed terms create succession vulnerability points',
+      duringFailure: 'Succession crisis in presidential system is constitutional crisis',
+      keyVariable: 'Constitutional succession provisions'
+    },
+    external: {
+      duringConsolidation: 'War powers expand executive authority',
+      duringFailure: 'Failed foreign policy strengthens legislative oversight',
+      keyVariable: 'War powers provisions'
+    },
+    mobilization: {
+      duringConsolidation: 'Mass mobilization may be directed at legislature to support executive',
+      duringFailure: 'Mobilization pressures legislature to check executive',
+      keyVariable: 'Target of mobilization (executive support vs legislative action)'
+    },
+    repression_backfire: {
+      duringConsolidation: 'Backfire may trigger legislative investigation',
+      duringFailure: 'Backfire strengthens legislative resistance',
+      keyVariable: 'Legislative independence and oversight capacity'
+    },
+    defection_cascade: {
+      duringConsolidation: 'Legislative co-partisans defecting is key check',
+      duringFailure: 'Co-partisan defection enables legislative action',
+      keyVariable: 'Co-partisan legislative loyalty'
+    },
+    institutional: {
+      duringConsolidation: 'Institutional crisis IS the Linzian dynamic - dual legitimacy conflict',
+      duringFailure: 'Institutional crisis resolved in favor of legislative/judicial branch',
+      keyVariable: 'Military and security force positioning'
+    },
+    security: {
+      duringConsolidation: 'Security crisis may justify executive emergency action',
+      duringFailure: 'Security failure may trigger legislative assertion',
+      keyVariable: 'Emergency powers provisions'
+    },
+    media: {
+      duringConsolidation: 'Exposé may trigger congressional investigation',
+      duringFailure: 'Exposé provides grounds for legislative action',
+      keyVariable: 'Congressional investigation capacity'
+    }
+  },
+
+  classical: {
+    economic: {
+      duringConsolidation: 'Economic hardship feeds popular passion, enables demagogy',
+      duringFailure: 'Economic failure discredits demagogue',
+      keyVariable: 'Whether demagogue can blame others for economic pain'
+    },
+    legitimacy: {
+      duringConsolidation: 'Scandal may not penetrate if public virtue already degraded',
+      duringFailure: 'Scandal may restore public virtue by revealing vice',
+      keyVariable: 'State of civic virtue and discernment'
+    },
+    succession: {
+      duringConsolidation: 'Tyrannies have succession problems by nature',
+      duringFailure: 'Succession crisis reveals tyranny fragility',
+      keyVariable: 'Institutionalization vs personal rule'
+    },
+    external: {
+      duringConsolidation: 'External threat feeds passion and rally around leader',
+      duringFailure: 'Military defeat historically ends tyrannies',
+      keyVariable: 'Military outcomes'
+    },
+    mobilization: {
+      duringConsolidation: 'Mob (ochlos) mobilization is mechanism of tyranny',
+      duringFailure: 'Virtuous citizen mobilization can restore republic',
+      keyVariable: 'Character of mobilization (passionate mob vs virtuous citizens)'
+    },
+    repression_backfire: {
+      duringConsolidation: 'Tyranny eventually overreaches, creating martyrs',
+      duringFailure: 'Backfire awakens civic virtue',
+      keyVariable: 'Moral clarity of repression'
+    },
+    defection_cascade: {
+      duringConsolidation: 'Virtuous elites have already withdrawn from public life',
+      duringFailure: 'Return of virtuous elites to public engagement',
+      keyVariable: 'Quality and virtue of potential defectors'
+    },
+    institutional: {
+      duringConsolidation: 'Institutions cannot save republic without civic virtue',
+      duringFailure: 'Institutional restoration follows virtue restoration',
+      keyVariable: 'State of civic virtue'
+    },
+    security: {
+      duringConsolidation: 'Security crisis feeds passion and fear',
+      duringFailure: 'Security failure may awaken citizens from fear',
+      keyVariable: 'Fear vs reason in public psychology'
+    },
+    media: {
+      duringConsolidation: 'Exposé wasted if public lacks virtue to act on it',
+      duringFailure: 'Exposé may spark virtue restoration',
+      keyVariable: 'Public capacity for moral judgment'
+    }
+  }
+};
+
+// Determine regime phase from scores
+export function determinePhase(avgScore: number, trend: 'rising' | 'stable' | 'falling'): RegimePhase {
+  if (trend === 'falling' && avgScore < 50) return 'failing_attempt';
+  if (avgScore < 25) return 'pre_authoritarian';
+  if (avgScore < 40) return 'early_consolidation';
+  if (avgScore < 60) return 'mid_consolidation';
+  if (avgScore < 80) return 'late_consolidation';
+  return 'consolidated';
+}
+
+// Generate crisis-conditional predictions
+export function generateCrisisPredictions(
+  modelId: string,
+  crisisType: CrisisType,
+  phase: RegimePhase,
+  currentScores: Record<string, number>
+): Prediction[] {
+  const predictions: Prediction[] = [];
+  const now = new Date();
+  const threeMonths = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+  const formatDate = (d: Date) => d.toISOString().split('T')[0];
+
+  const interpretation = crisisInterpretations[modelId]?.[crisisType];
+  if (!interpretation) return predictions;
+
+  const isConsolidating = phase !== 'failing_attempt' && phase !== 'pre_authoritarian';
+  const hypothesis = isConsolidating ? interpretation.duringConsolidation : interpretation.duringFailure;
+
+  predictions.push({
+    id: `${modelId}-crisis-${crisisType}-${Date.now()}`,
+    modelId,
+    hypothesis: `Given ${crisisType} crisis during ${phase}: ${hypothesis}`,
+    timeframe: '3 months',
+    generatedDate: formatDate(now),
+    targetDate: formatDate(threeMonths),
+    conditions: `Key variable to watch: ${interpretation.keyVariable}`,
+    refutationConditions: isConsolidating
+      ? 'Crisis leads to deconsolidation instead of acceleration'
+      : 'Crisis leads to consolidation instead of deceleration',
+    status: 'pending',
+    novelty: 'novel'
+  });
+
+  return predictions;
+}
+
+// Point of no return thresholds by model
+export const pointOfNoReturn: Record<string, {
+  threshold: string;
+  indicators: string[];
+  reversibility: string;
+}> = {
+  levitsky: {
+    threshold: 'When judiciary AND electoral system both captured (ACI > 70 in both)',
+    indicators: ['Courts no longer rule against executive', 'Electoral commission under executive control', 'Opposition cannot win elections'],
+    reversibility: 'Extremely difficult - requires external intervention or regime collapse'
+  },
+  bermanRiley: {
+    threshold: 'When autonomous civil society organizations destroyed (civil society score > 75)',
+    indicators: ['Independent unions illegal or captured', 'NGOs shuttered or co-opted', 'No autonomous organizational infrastructure'],
+    reversibility: 'Rebuilding takes a generation - organizational memory lost'
+  },
+  frankfurtSchool: {
+    threshold: 'No single threshold - Behemoth is inherently unstable',
+    indicators: ['Look for signs of entropy: infighting, policy chaos, racket warfare'],
+    reversibility: 'Regime may collapse from internal contradictions regardless of opposition'
+  },
+  paxton: {
+    threshold: 'Stage 4 completion - exercise of power with radicalization dynamic',
+    indicators: ['New outgroups being targeted', 'Former allies purged', 'Radicalization spiral begun'],
+    reversibility: 'Stage 5 typically ends in war, collapse, or transformation - rarely stable reversal'
+  },
+  marxian: {
+    threshold: 'When independent working class organization destroyed',
+    indicators: ['Unions illegal or fully captured', 'Strike activity criminalized', 'No autonomous labor party'],
+    reversibility: 'Working class organization can rebuild but takes time and usually external support'
+  },
+  svolik: {
+    threshold: 'When elite coordination against autocrat becomes impossible',
+    indicators: ['All potential coordinators surveilled', 'No safe communication channels', 'Exit options closed'],
+    reversibility: 'Requires external shock or generational change in elite composition'
+  },
+  gramscian: {
+    threshold: 'When counter-hegemonic space closed',
+    indicators: ['All media captured', 'Educational institutions aligned', 'No alternative common sense articulable'],
+    reversibility: 'Hegemony is never total - cracks always exist, but may take generation to exploit'
+  },
+  redistributive: {
+    threshold: 'When elite repressive capacity exceeds any credible revolution threat',
+    indicators: ['Modern surveillance state', 'Atomized population', 'No credible mass mobilization possible'],
+    reversibility: 'Technology shock or elite defection can shift balance'
+  },
+  linz: {
+    threshold: 'When executive controls both legislature and judiciary',
+    indicators: ['No impeachment threat', 'Courts rubber-stamp', 'Military aligned with executive'],
+    reversibility: 'Constitutional restoration requires regime collapse'
+  },
+  classical: {
+    threshold: 'When civic virtue completely degraded',
+    indicators: ['No public-spirited citizens', 'Universal cynicism', 'Private interest dominates'],
+    reversibility: 'Virtue restoration possible but rare - usually requires crisis or inspiration'
+  }
+};
+
+// =============================================================================
+// END CRISIS FRAMEWORK SKETCH
+// =============================================================================
+
 export interface Prediction {
   id: string;
   modelId: string;
