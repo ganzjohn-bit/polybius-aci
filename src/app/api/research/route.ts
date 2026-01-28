@@ -259,8 +259,8 @@ ELECTIONS: 0-20=free/fair, 21-40=minor issues, 41-60=manipulation, 61-80=systema
     "cultureIndustryCapture": {
       "authoritarianDiscourseLevel": "subcultural/mainstreaming/normalized",
       "evidence": ["where authoritarian rhetoric appears"],
-      "dehumanizingLanguage": true/false,
-      "scapegoatingPresent": true/false
+      "dehumanizingLanguage": false,
+      "scapegoatingPresent": false
     }
   },
   "summary": "2-3 paragraph analysis"

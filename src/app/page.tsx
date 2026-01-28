@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AlertCircle, Loader2, Check, Settings, X, TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp, Info, Activity, Heart, Newspaper, Search, ExternalLink, BookOpen, Users, Shield, Radio } from 'lucide-react';
+import { AlertCircle, Loader2, Check, Settings, X, TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp, Info, Activity, Heart, Newspaper, Search, ExternalLink, BookOpen, Users, Shield, Radio, Upload } from 'lucide-react';
 
 interface FactorResult {
   score: number;
@@ -297,6 +297,8 @@ export default function PolybiusCalculator() {
   const [comparativeData, setComparativeData] = useState<ComparativeAnalysisData | null>(null);
   const [isFetchingComparative, setIsFetchingComparative] = useState(false);
   const [socialError, setSocialError] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [activeModels, setActiveModels] = useState({
     linz: false,
     levitsky: false,
@@ -2202,11 +2204,14 @@ This model weights mobilizational balance heavily—but requires honest assessme
             <div className={`font-bold text-2xl ${risk.textColor}`}>{risk.level}</div>
           </div>
 
-          {/* Export for Publishing */}
+          {/* Publish to polybius.world */}
           {hasNonZeroScores && (
-            <div className="mt-4 flex justify-center">
+            <div className="mt-4 flex flex-col items-center gap-2">
               <button
-                onClick={() => {
+                onClick={async () => {
+                  setIsPublishing(true);
+                  setPublishStatus(null);
+
                   const exportData = {
                     generatedAt: new Date().toISOString(),
                     country,
@@ -2237,23 +2242,42 @@ This model weights mobilizational balance heavily—but requires honest assessme
                       interpretation: comparativeData.interpretation
                     } : null
                   };
-                  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'results.json';
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
+
+                  try {
+                    const response = await fetch('/api/publish', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ results: exportData })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                      setPublishStatus({ type: 'success', message: 'Published! polybius.world will update in ~30 seconds.' });
+                    } else {
+                      setPublishStatus({ type: 'error', message: data.error || 'Publish failed' });
+                    }
+                  } catch (err) {
+                    setPublishStatus({ type: 'error', message: err instanceof Error ? err.message : 'Publish failed' });
+                  } finally {
+                    setIsPublishing(false);
+                  }
                 }}
-                className="px-4 py-2 bg-slate-700 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors flex items-center gap-2"
+                disabled={isPublishing}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:bg-green-400 transition-colors flex items-center gap-2"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Export for Publishing
+                {isPublishing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4" />
+                )}
+                {isPublishing ? 'Publishing...' : 'Publish to polybius.world'}
               </button>
+              {publishStatus && (
+                <div className={`text-sm ${publishStatus.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                  {publishStatus.message}
+                </div>
+              )}
             </div>
           )}
 
