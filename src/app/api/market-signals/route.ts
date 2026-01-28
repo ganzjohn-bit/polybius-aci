@@ -31,6 +31,27 @@ interface ModelInterpretation {
   score_modifier: number;
 }
 
+// Clean up XML/HTML artifacts from text
+function cleanArtifacts(text: string): string {
+  return text
+    .replace(/<\/?[a-zA-Z_][a-zA-Z0-9_-]*[^>]*>/g, '')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'")
+    .replace(/&#x27;/g, "'").replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code)))
+    .replace(/\[\d+\]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function cleanObjectStrings(obj: unknown): unknown {
+  if (typeof obj === 'string') return cleanArtifacts(obj);
+  if (Array.isArray(obj)) return obj.map(cleanObjectStrings);
+  if (obj && typeof obj === 'object') {
+    const cleaned: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj)) cleaned[key] = cleanObjectStrings(value);
+    return cleaned;
+  }
+  return obj;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { apiKey } = await request.json();
@@ -201,7 +222,7 @@ Respond with ONLY this JSON:
     }
 
     const results = JSON.parse(jsonMatch[0]);
-    return NextResponse.json(results);
+    return NextResponse.json(cleanObjectStrings(results));
 
   } catch (error) {
     console.error('Market signals error:', error);
