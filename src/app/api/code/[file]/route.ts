@@ -529,7 +529,7 @@ export const historicalCases: HistoricalCase[] = ${JSON.stringify(historicalCase
       content = `# Polybius ACI - Full Source Code
 
 To get the complete source code, please visit:
-https://github.com/polybius-aci/polybius
+https://github.com/ganzjohn-bit/polybius-aci
 
 Or contact: methodology@polybius.world
 

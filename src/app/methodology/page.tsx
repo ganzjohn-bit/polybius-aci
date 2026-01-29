@@ -130,7 +130,7 @@ What matters is WHO controls mobilizational infrastructure.`,
     { id: 'civil', name: 'Civil Society', description: 'NGO freedom, protest rights, union strength, associational life', rubric: '0-20: Vibrant | 21-40: Some restrictions | 41-60: Foreign agent laws | 61-80: Shut down | 81-100: Total control' },
     { id: 'publicOpinion', name: 'Public Opinion (Regime Approval)', description: 'Executive approval rating converted to score. Higher = regime more popular = consolidation easier.', rubric: 'Approval <35%: Score 0-20 | 35-44%: Score 21-40 | 45-50%: Score 41-50 | 51-57%: Score 51-70 | >57%: Score 71-100' },
     { id: 'mobilizationalBalance', name: 'Mobilizational Balance', description: 'Balance of organized civil society. Regime orgs vs opposition orgs. Per Berman/Riley: what matters is WHO controls infrastructure.', rubric: '0-20: Opposition strong | 21-40: Opposition advantage | 41-60: Balanced | 61-80: Regime advantage | 81-100: Regime dominates' },
-    { id: 'stateCapacity', name: 'State Capacity', description: 'Bureaucratic coordination, security service loyalty, surveillance capability', rubric: '0-20: Fragmented | 21-40: Gaps | 41-60: Growing | 61-80: High capacity | 81-100: Total coordination' },
+    { id: 'stateCapacity', name: 'State Capacity', description: 'Bureaucratic coordination, surveillance capability, and executive coercive control. Measures capacity × loyalty orientation per branch: military, DHS/ICE, FBI/DOJ, local police. Constitutional loyalty pulls score down; regime responsiveness pulls score up.', rubric: '0-20: Constitutionally loyal, no political deployment | 21-40: Mostly constitutional, some executive responsiveness | 41-60: Split loyalty (e.g. military constitutional but DHS regime-oriented) | 61-80: Most services regime-loyal, military neutralized | 81-100: Total regime control, paramilitaries' },
     { id: 'corporateCompliance', name: 'Corporate Compliance', description: 'Business elite alignment, corporate self-censorship, economic pressure compliance', rubric: '0-20: Resist | 21-40: Neutral | 41-60: Compliance | 61-80: Active cooperation | 81-100: Captured' },
     { id: 'electionInterference', name: 'Election Interference', description: 'Voter suppression, electoral fraud, foreign interference, gerrymandering', rubric: '0-20: Free/fair | 21-40: Minor issues | 41-60: Manipulation | 61-80: Systematic fraud | 81-100: Theatrical' },
   ];
@@ -616,17 +616,18 @@ export function findSimilarCases(
               </div>
 
               <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h3 className="font-bold text-blue-800 mb-2">Download Complete Source</h3>
+                <h3 className="font-bold text-blue-800 mb-2">Full Source Code on GitHub</h3>
                 <p className="text-sm text-blue-700 mb-3">
-                  Get the entire Polybius ACI codebase as a ZIP file, including all components, API routes, and data files.
+                  Get the entire Polybius ACI codebase, including all components, API routes, and data files. Fork it, improve it, submit PRs.
                 </p>
                 <a
-                  href="/api/code/full"
-                  download="polybius-aci-source.zip"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  href="https://github.com/ganzjohn-bit/polybius-aci"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-black"
                 >
                   <Github className="w-4 h-4" />
-                  Download Full Source (ZIP)
+                  View on GitHub
                 </a>
               </div>
             </div>
@@ -692,8 +693,25 @@ export function findSimilarCases(
                 </ul>
               </div>
 
+              <div className="bg-slate-50 rounded-lg p-4 border border-slate-300">
+                <h3 className="font-bold text-slate-800 mb-2">Technical Architecture</h3>
+                <p className="text-sm text-slate-700">
+                  Known issues and potential improvements:
+                </p>
+                <ul className="text-sm text-slate-700 mt-2 list-disc list-inside">
+                  <li><strong>Attentional limits:</strong> The single API call has a very long prompt (~8,000+ tokens of rubrics). Some factors get thorough treatment while others look cursory. A multi-pass architecture — parallel calls per factor cluster, then a synthesis pass — could give each rubric full attention while preserving cross-factor awareness in synthesis.</li>
+                  <li><strong>Consistency testing:</strong> Run the same query twice and compare outputs. If scores vary wildly between runs, that reveals which factors have unreliable rubric application.</li>
+                  <li><strong>Interaction effects:</strong> Some factors interact (state capacity + corporate compliance, judicial + federalism). Currently the prompt hints at these but doesn&apos;t formally model feedback loops or phase-dependent weights.</li>
+                  <li><strong>Model consolidation:</strong> 11 models may be cutting too fine. Some could be collapsed (e.g., Linz + Levitsky-Ziblatt + Game Theory into a single &quot;Institutionalist&quot; lens) to reduce false precision while preserving genuinely distinct perspectives.</li>
+                  <li><strong>Validation framework:</strong> No systematic way to check if scores track reality over time. Need infrastructure to log scores, compare to subsequent events, and identify which models/factors are actually predictive.</li>
+                </ul>
+              </div>
+
               <div className="mt-6 p-4 bg-slate-100 rounded-lg">
                 <p className="text-slate-700 text-sm">
+                  Join the discussion: <a href="https://discord.gg/Ns5f4USV" className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">Discord</a>
+                </p>
+                <p className="text-slate-700 text-sm mt-2">
                   Contact: <a href="mailto:methodology@polybius.world" className="text-blue-600 underline">methodology@polybius.world</a>
                 </p>
                 <p className="text-slate-500 text-xs mt-2">

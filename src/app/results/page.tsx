@@ -136,6 +136,7 @@ interface StoredResults {
     marketSignals: MarketSignalsData | null;
   };
   modelsUsed?: ModelUsed[];
+  modelDiagnoses?: Record<string, string>;
 }
 
 const factors = [
@@ -244,9 +245,16 @@ export default function ResultsPage() {
       <div className="bg-white rounded-xl shadow-xl p-6 md:p-8">
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Polybius</h1>
-            <p className="text-slate-600 text-lg">Authoritarian Consolidation Index</p>
+          <div className="flex items-center gap-4">
+            <img
+              src="/polybius-logo.png"
+              alt="Polybius"
+              className="w-16 h-20 md:w-20 md:h-24 object-contain"
+            />
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-1 tracking-wide">POLYBIUS</h1>
+              <p className="text-slate-600 text-lg italic">Authoritarian Consolidation Index</p>
+            </div>
           </div>
           <div className="text-right text-sm text-slate-500">
             <div>Last updated:</div>
@@ -350,13 +358,18 @@ export default function ResultsPage() {
                         </div>
                       </div>
                       <div className="flex items-center justify-center gap-1 h-4">
-                        {trend && (
-                          <>
-                            {trend.toLowerCase().includes('improv') && <><TrendingDown className="w-3 h-3 text-green-400" /><span className="text-xs text-green-400">improving</span></>}
-                            {(trend.toLowerCase().includes('deter') || trend.toLowerCase().includes('worsen')) && <><TrendingUp className="w-3 h-3 text-red-400" /><span className="text-xs text-red-400">worsening</span></>}
-                            {trend.toLowerCase().includes('stable') && <><Minus className="w-3 h-3 text-slate-400" /><span className="text-xs text-slate-400">stable</span></>}
-                          </>
-                        )}
+                        {trend && (() => {
+                          const t = trend.toLowerCase();
+                          // "improving" = score going down = better for democracy (green)
+                          const isImproving = t.includes('improv') || t.includes('strengthen') || t.includes('resist');
+                          // "deteriorating" = score going up = worse for democracy (red)
+                          const isDeteriorating = t.includes('deter') || t.includes('worsen') || t.includes('grow') || t.includes('escalat') || t.includes('increas');
+                          const isStable = t.includes('stable') || t.includes('unchanged');
+                          if (isImproving) return <><TrendingDown className="w-3 h-3 text-green-400" /><span className="text-xs text-green-400">improving</span></>;
+                          if (isDeteriorating) return <><TrendingUp className="w-3 h-3 text-red-400" /><span className="text-xs text-red-400">worsening</span></>;
+                          if (isStable) return <><Minus className="w-3 h-3 text-slate-400" /><span className="text-xs text-slate-400">stable</span></>;
+                          return null;
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -439,17 +452,17 @@ export default function ResultsPage() {
                     <div className="flex gap-2">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         eliteSignals.defections.coordinationScore > 70 ? 'bg-red-100 text-red-700' :
-                        eliteSignals.defections.coordinationScore > 40 ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-green-100 text-green-700'
+                        eliteSignals.defections.coordinationScore > 40 ? 'bg-amber-100 text-amber-700' :
+                        'bg-slate-100 text-slate-700'
                       }`}>
-                        Coordination: {eliteSignals.defections.coordinationScore}
+                        Regime Cohesion: {eliteSignals.defections.coordinationScore}
                       </span>
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         eliteSignals.propaganda.effectivenessScore > 70 ? 'bg-red-100 text-red-700' :
-                        eliteSignals.propaganda.effectivenessScore > 40 ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-green-100 text-green-700'
+                        eliteSignals.propaganda.effectivenessScore > 40 ? 'bg-amber-100 text-amber-700' :
+                        'bg-slate-100 text-slate-700'
                       }`}>
-                        Propaganda: {eliteSignals.propaganda.effectivenessScore}
+                        Propaganda Effect: {eliteSignals.propaganda.effectivenessScore}
                       </span>
                     </div>
                   </div>
@@ -488,9 +501,9 @@ export default function ResultsPage() {
                     </span>
                   </div>
                   <div className="flex gap-4 mb-3 text-sm">
-                    <span className="text-red-600">Negative: {bluesky.sentimentBreakdown.negative}</span>
-                    <span className="text-gray-600">Neutral: {bluesky.sentimentBreakdown.neutral}</span>
-                    <span className="text-green-600">Positive: {bluesky.sentimentBreakdown.positive}</span>
+                    <span className="text-slate-700"><span className="font-medium">Critical:</span> {bluesky.sentimentBreakdown.negative}</span>
+                    <span className="text-slate-500"><span className="font-medium">Mixed:</span> {bluesky.sentimentBreakdown.neutral}</span>
+                    <span className="text-slate-700"><span className="font-medium">Supportive:</span> {bluesky.sentimentBreakdown.positive}</span>
                   </div>
                   <div className="space-y-1">
                     {bluesky.interpretation.map((line, i) => (
@@ -547,71 +560,171 @@ export default function ResultsPage() {
           </div>
         )}
 
-        {/* Theoretical Models Used */}
-        {displayResults.modelsUsed && displayResults.modelsUsed.length > 0 && (
-          <div className="bg-blue-50 rounded-xl p-6 mb-8 border border-blue-200">
-            <div className="flex items-center gap-2 mb-4">
-              <BookOpen className="w-5 h-5 text-blue-700" />
-              <h2 className="text-xl font-bold text-slate-800">Theoretical Models Applied</h2>
-              <span className="text-sm text-slate-500">({displayResults.modelsUsed.length} models)</span>
-            </div>
-            <p className="text-sm text-slate-600 mb-4">
-              This analysis synthesizes multiple theoretical frameworks from political science to assess authoritarian consolidation risk.
-              Each model weights the factors differently based on its theoretical assumptions.
-            </p>
-            <div className="space-y-3">
-              {displayResults.modelsUsed.map(model => (
-                <div key={model.id} className="bg-white rounded-lg border border-blue-100 overflow-hidden">
-                  <button
-                    onClick={() => setExpandedModels(prev => ({ ...prev, [model.id]: !prev[model.id] }))}
-                    className="w-full p-4 text-left flex items-center justify-between hover:bg-blue-50 transition-colors"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-800">{model.name}</span>
-                        <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded">{model.cluster}</span>
-                      </div>
-                      <p className="text-sm text-slate-500">{model.author}</p>
-                      <p className="text-sm text-slate-600 mt-1">{model.shortDesc}</p>
-                    </div>
-                    {expandedModels[model.id] ? (
-                      <ChevronUp className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                    )}
-                  </button>
-                  {expandedModels[model.id] && (
-                    <div className="px-4 pb-4 border-t border-blue-100">
-                      <div className="mt-3 text-sm text-slate-700 whitespace-pre-line">
-                        {model.fullDesc}
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-slate-100">
-                        <div className="text-xs font-medium text-slate-500 mb-2">Key Works:</div>
-                        <div className="text-sm text-slate-600 italic">{model.keyWorks}</div>
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-slate-100">
-                        <div className="text-xs font-medium text-slate-500 mb-2">Factor Weights:</div>
-                        <div className="flex flex-wrap gap-2">
-                          {Object.entries(model.weights)
-                            .filter(([, w]) => w > 0)
-                            .sort(([, a], [, b]) => b - a)
-                            .map(([factorId, weight]) => {
-                              const factor = factors.find(f => f.id === factorId);
-                              return (
-                                <span key={factorId} className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                                  {factor?.name.split('/')[0] || factorId}: {(weight * 100).toFixed(0)}%
-                                </span>
-                              );
-                            })}
+        {/* Theoretical Model Scores & Diagnoses */}
+        {displayResults.modelsUsed && displayResults.modelsUsed.length > 0 && (() => {
+          // Compute per-model scores from factor scores + model weights
+          const modelScores = displayResults.modelsUsed!.map(model => {
+            const score = factors.reduce((total, f) => {
+              const factorScore = displayResults.factorResults[f.id]?.score || 0;
+              const weight = model.weights[f.id] || 0;
+              return total + (factorScore * weight);
+            }, 0);
+            return { ...model, score };
+          }).sort((a, b) => b.score - a.score);
+
+          const meanScore = modelScores.reduce((sum, m) => sum + m.score, 0) / modelScores.length;
+          const variance = modelScores.reduce((sum, m) => sum + Math.pow(m.score - meanScore, 2), 0) / modelScores.length;
+          const stdDev = Math.sqrt(variance);
+
+          const scored = modelScores.map(m => ({
+            ...m,
+            isOutlier: Math.abs(m.score - meanScore) > stdDev,
+            deviation: m.score - meanScore,
+            direction: m.score > meanScore + stdDev ? 'high' as const : m.score < meanScore - stdDev ? 'low' as const : null
+          }));
+
+          // Map diagnosis keys to model IDs
+          const diagnosisKeyMap: Record<string, string> = {
+            gramscian: 'gramscian',
+            classical: 'classical',
+            bermanRiley: 'bermanRiley',
+            svolik: 'svolik',
+            levitskyZiblatt: 'levitsky'
+          };
+          const diagnoses = displayResults.modelDiagnoses || {};
+          const getDiagnosis = (modelId: string): string | undefined => {
+            // Direct match
+            for (const [key, id] of Object.entries(diagnosisKeyMap)) {
+              if (id === modelId) return diagnoses[key];
+            }
+            return diagnoses[modelId];
+          };
+
+          const clusterColor: Record<string, string> = {
+            'institutionalist': 'bg-blue-100 text-blue-700',
+            'class-economic': 'bg-purple-100 text-purple-700',
+            'cultural-social': 'bg-pink-100 text-pink-700',
+            'elite-strategic': 'bg-cyan-100 text-cyan-700',
+            'process-dynamic': 'bg-orange-100 text-orange-700'
+          };
+          const clusterLabels: Record<string, string> = {
+            'institutionalist': 'Institutionalist',
+            'class-economic': 'Class/Economic',
+            'cultural-social': 'Cultural/Social',
+            'elite-strategic': 'Elite/Strategic',
+            'process-dynamic': 'Process/Dynamic'
+          };
+
+          const getRisk = (s: number) => {
+            if (s >= 70) return { level: 'Critical', color: 'bg-red-500', textColor: 'text-red-600' };
+            if (s >= 50) return { level: 'Elevated', color: 'bg-orange-500', textColor: 'text-orange-600' };
+            if (s >= 30) return { level: 'Moderate', color: 'bg-amber-500', textColor: 'text-amber-600' };
+            return { level: 'Low', color: 'bg-green-500', textColor: 'text-green-600' };
+          };
+
+          return (
+            <div className="bg-slate-50 rounded-xl p-6 mb-8 border border-slate-200">
+              <div className="flex items-center gap-2 mb-2">
+                <BookOpen className="w-5 h-5 text-slate-700" />
+                <h2 className="text-xl font-bold text-slate-800">Theoretical Model Assessment</h2>
+              </div>
+              <p className="text-sm text-slate-500 mb-4">
+                Each model applies its own theoretical weights to the shared factor scores, producing different risk assessments.
+                Models flagged as outliers deviate &gt;1 standard deviation from the mean ({meanScore.toFixed(1)}).
+              </p>
+
+              {/* Outlier Alert */}
+              {scored.filter(m => m.isOutlier).length > 0 && (
+                <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="text-sm font-semibold text-amber-800 mb-1">Outlier Models</div>
+                  <div className="text-xs text-amber-700 flex flex-wrap gap-2 mt-1">
+                    {scored.filter(m => m.isOutlier).map(m => (
+                      <span key={m.id} className={`px-2 py-0.5 rounded ${
+                        m.direction === 'high' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                      }`}>
+                        {m.name}: {m.score.toFixed(1)} ({m.deviation > 0 ? '+' : ''}{m.deviation.toFixed(1)})
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Model list */}
+              <div className="space-y-3">
+                {scored.map((model, index) => {
+                  const isHighest = index === 0;
+                  const isLowest = index === scored.length - 1;
+                  const risk = getRisk(model.score);
+                  const barWidth = Math.max((model.score / 100) * 100, 2);
+                  const diagnosis = getDiagnosis(model.id);
+
+                  return (
+                    <div key={model.id} className={`p-4 rounded-lg ${
+                      model.isOutlier && model.direction === 'high' ? 'bg-red-50 border-2 border-red-300' :
+                      model.isOutlier && model.direction === 'low' ? 'bg-green-50 border-2 border-green-300' :
+                      isHighest ? 'bg-red-50 border border-red-200' :
+                      isLowest ? 'bg-green-50 border border-green-200' :
+                      'bg-white border border-slate-200'
+                    }`}>
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {model.isOutlier && (
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                              model.direction === 'high' ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'
+                            }`}>
+                              OUTLIER {model.direction === 'high' ? '↑' : '↓'}
+                            </span>
+                          )}
+                          {!model.isOutlier && isHighest && <span className="text-xs font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded">MOST CONCERN</span>}
+                          {!model.isOutlier && isLowest && <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded">LEAST CONCERN</span>}
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${clusterColor[model.cluster] || 'bg-slate-100 text-slate-600'}`}>
+                            {clusterLabels[model.cluster] || model.cluster}
+                          </span>
+                          <span className="font-semibold text-slate-800">{model.name}</span>
+                          <span className="text-xs text-slate-500">({model.author})</span>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className={`text-sm font-medium ${risk.textColor}`}>{risk.level}</span>
+                          <span className="font-bold text-slate-800 text-lg">{model.score.toFixed(1)}</span>
                         </div>
                       </div>
+                      <div className="w-full bg-slate-200 rounded-full h-2 mb-2">
+                        <div
+                          className={`h-full rounded-full ${risk.color}`}
+                          style={{ width: `${barWidth}%` }}
+                        />
+                      </div>
+                      {/* Model diagnosis */}
+                      {diagnosis && (
+                        <p className="text-sm text-slate-600 italic mt-1">{diagnosis}</p>
+                      )}
                     </div>
-                  )}
+                  );
+                })}
+              </div>
+
+              {/* Spread & stats */}
+              <div className="mt-4 pt-4 border-t border-slate-300">
+                <div className="flex flex-wrap gap-4 text-sm text-slate-600">
+                  <div>
+                    <strong>Spread:</strong> {(scored[0].score - scored[scored.length - 1].score).toFixed(1)} pts
+                    {scored[0].score - scored[scored.length - 1].score > 20 && (
+                      <span className="text-amber-700 ml-1">(high disagreement)</span>
+                    )}
+                  </div>
+                  <div>
+                    <strong>Mean:</strong> {meanScore.toFixed(1)} | <strong>Std Dev:</strong> {stdDev.toFixed(1)}
+                  </div>
                 </div>
-              ))}
+                {scored[0].score - scored[scored.length - 1].score > 20 && (
+                  <p className="text-sm text-amber-700 mt-2">
+                    Large spread suggests the situation looks different through different theoretical lenses. Outlier models may detect vulnerabilities or resilience others miss.
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Factor Breakdown with Evidence */}
         {Object.keys(displayResults.factorResults).length > 0 && (
@@ -626,13 +739,15 @@ export default function ResultsPage() {
                     <div className="flex justify-between items-center mb-2">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-slate-700">{factor.name}</span>
-                        {data.trend && (
-                          <>
-                            {data.trend.toLowerCase().includes('improv') && <TrendingDown className="w-4 h-4 text-green-600" />}
-                            {(data.trend.toLowerCase().includes('deter') || data.trend.toLowerCase().includes('worsen')) && <TrendingUp className="w-4 h-4 text-red-600" />}
-                            {data.trend.toLowerCase().includes('stable') && <Minus className="w-4 h-4 text-slate-400" />}
-                          </>
-                        )}
+                        {data.trend && (() => {
+                          const t = data.trend.toLowerCase();
+                          const isImproving = t.includes('improv') || t.includes('strengthen') || t.includes('resist');
+                          const isDeteriorating = t.includes('deter') || t.includes('worsen') || t.includes('grow') || t.includes('escalat') || t.includes('increas');
+                          if (isImproving) return <TrendingDown className="w-4 h-4 text-green-600" />;
+                          if (isDeteriorating) return <TrendingUp className="w-4 h-4 text-red-600" />;
+                          if (t.includes('stable') || t.includes('unchanged')) return <Minus className="w-4 h-4 text-slate-400" />;
+                          return null;
+                        })()}
                       </div>
                       <span className={`font-bold ${data.score >= 60 ? 'text-red-600' : data.score >= 40 ? 'text-amber-600' : 'text-green-600'}`}>
                         {data.score}/100
