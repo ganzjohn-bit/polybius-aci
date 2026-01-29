@@ -752,7 +752,7 @@ MODEL-SPECIFIC INTERPRETIVE DIAGNOSES:
     "svolik": "1-2 sentences: Are voters constraining the leader? Partisan tolerance of norm violations assessment.",
     "levitskyZiblatt": "1-2 sentences: Status of mutual toleration and institutional forbearance. Which guardrails are holding, which are eroding?"
   },
-  "summary": "2-3 paragraph analysis that integrates the above model diagnoses — note where models AGREE (convergent signal) and where they DISAGREE (the disagreements are analytically important)"
+  "summary": "2-3 paragraph analysis focused on THE NEWS and THE CONJUNCTURE. What is actually happening right now? What are the key events, conflicts, and developments this week? Then: what does this conjuncture (in Stuart Hall's sense — the specific historical moment where multiple forces and contradictions condense) mean for democratic stability? Write like an analyst briefing a reader on the situation, not like a methods section. Ground the analysis in concrete recent events. Do NOT discuss model methodology or divergence here — that belongs in modelDiagnoses. This summary should read like informed political analysis, not academic throat-clearing."
 }`;
 
     // Different prompts for each mode
