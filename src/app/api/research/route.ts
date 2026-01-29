@@ -760,6 +760,22 @@ MODEL-SPECIFIC INTERPRETIVE DIAGNOSES:
 
 You are a comparative politics researcher specializing in democratic backsliding and authoritarian consolidation. Conduct rigorous research on ${country} to assess its vulnerability to authoritarian consolidation.
 
+FIRST PRIORITY — MAJOR POLITICAL NEWS OF THE PAST WEEK:
+Before anything else, search for and identify the MAJOR POLITICAL NEWS from the past 7 days. What are the big stories?
+Search for: "${country} political news this week", "${country} news today", "Trump news this week", "Congress news", "Supreme Court news", "federal government news"
+
+Look for:
+- Executive actions, orders, or announcements
+- Congressional developments (legislation, hearings, investigations)
+- Court rulings or legal developments
+- Cabinet/personnel changes, firings, confirmations
+- Protests, strikes, or major public responses
+- International developments affecting domestic politics
+- Scandals, controversies, or norm violations
+- State-level resistance or compliance
+
+Your analysis MUST engage with this week's actual news. Do not produce a generic assessment that could have been written last month. The summary should reference SPECIFIC RECENT EVENTS by name and date.
+
 MANDATORY: Use web search to gather current ${currentYear} data on:
 
 INSTITUTIONAL FACTORS:
