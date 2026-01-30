@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+set -e
+
+cd "$(dirname "$0")/.."
+
+echo ""
+echo "=== Polybius Updater ==="
+echo ""
+
+echo "Checking for updates..."
+if ! git fetch origin main 2>/dev/null; then
+  echo ""
+  echo "Couldn't connect to GitHub. Check your internet connection and try again."
+  exit 1
+fi
+
+# Check if there are any updates to pull
+LOCAL=$(git rev-parse HEAD)
+REMOTE=$(git rev-parse origin/main)
+
+# Check for local changes (modified files)
+has_changes=false
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  has_changes=true
+fi
+
+# Check for new files
+has_new_files=false
+if [[ -n $(git ls-files --others --exclude-standard) ]]; then
+  has_new_files=true
+fi
+
+# No updates, no need to proceed
+# if [ "$LOCAL" = "$REMOTE" ]; then
+#   echo "You're already up-to-date!"
+#   echo ""
+#   if $has_changes || $has_new_files; then
+#     echo "You have some local changes that haven't been saved to Github."
+#     echo "Make sure to run bin/save if you want to keep them."
+#   fi
+#   exit 0
+# fi
+
+# Yes updates
+echo "Updates available."
+echo ""
+
+# If there are any local modifications, offer to stash or discard them
+if $has_changes || $has_new_files; then
+  echo "You have some local changes that haven't been saved to Github."
+  echo "These files have been modified since the last update."
+  echo ""
+
+  if $has_changes; then
+    echo "Modified files:"
+    echo "$(git diff --name-only; git diff --cached --name-only)" | sort -u | sed 's/^/  /'
+  fi
+
+  if $has_new_files; then
+    echo "New files:"
+    echo "$(git ls-files --others --exclude-standard)" | sed 's/^/  /'
+  fi
+
+  echo ""
+  echo "What would you like to do?"
+  echo "  [s] Save my changes, then update"
+  echo "  [d] Discard my changes and update"
+  echo "  [q] Quit - I'll handle this myself"
+  echo ""
+  read -p "Choice [s/d/q]: " -n 1 -r
+  echo ""
+
+  case $REPLY in
+    [Ss])
+      echo ""
+      echo "Saving your changes..."
+      git stash push --include-untracked -m "Auto-saved by bin/latest on $(date '+%Y-%m-%d %H:%M')"
+      echo "Your changes have been saved. You can bring them back after this script finishes by running:"
+      echo "  git stash pop"
+      echo ""
+      ;;
+    [Dd])
+      echo ""
+      echo "Discarding changes..."
+      git checkout .
+      git clean -fd
+      echo ""
+      ;;
+    *)
+      echo ""
+      echo "No problem! Come back when you're ready."
+      exit 0
+      ;;
+  esac
+fi
+
+# Switch to main and pull
+echo "Switching to the main branch..."
+git checkout main 2>/dev/null || {
+  echo ""
+  echo "Something went wrong switching branches."
+  echo "Try running this in the terminal: git status"
+  echo "Then ask Claude Code for help."
+  exit 1
+}
+
+echo "Downloading the latest code..."
+if ! git pull origin main 2>/dev/null; then
+  echo ""
+  echo "There was a conflict between your changes and the latest code."
+  echo "Ask Claude Code for help resolving it, and let a project dev know."
+  exit 1
+fi
+
+echo "Installing any new dependencies..."
+npm install --silent
+
+echo ""
+echo "All done! Polybius is now up-to-date."
+echo ""
