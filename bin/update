@@ -31,15 +31,15 @@ if [[ -n $(git ls-files --others --exclude-standard) ]]; then
 fi
 
 # No updates, no need to proceed
-# if [ "$LOCAL" = "$REMOTE" ]; then
-#   echo "You're already up-to-date!"
-#   echo ""
-#   if $has_changes || $has_new_files; then
-#     echo "You have some local changes that haven't been saved to Github."
-#     echo "Make sure to run bin/save if you want to keep them."
-#   fi
-#   exit 0
-# fi
+if [ "$LOCAL" = "$REMOTE" ]; then
+  echo "You're already up-to-date!"
+  echo ""
+  if $has_changes || $has_new_files; then
+    echo "You have some local changes that haven't been saved to Github."
+    echo "Make sure to run bin/save if you want to keep them."
+  fi
+  exit 0
+fi
 
 # Yes updates
 echo "Updates available."
