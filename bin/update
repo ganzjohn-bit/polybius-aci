@@ -8,7 +8,7 @@ echo ""
 
 # Fetch latest
 if ! git fetch origin main 2>/dev/null; then
-  echo "Couldn't connect to GitHub. Check your internet connection."
+  echo "Couldn't connect to GitHub."
   exit 1
 fi
 
@@ -20,7 +20,8 @@ fi
 
 # Check for local changes
 if ! git diff --quiet || ! git diff --cached --quiet || [[ -n $(git ls-files --others --exclude-standard) ]]; then
-  echo "You have local changes. Run 'bin/save' first, or discard them with 'git checkout . && git clean -fd'"
+  echo "You have local changes. Run 'bin/save' first, or discard them with:"
+  echo "  git checkout . && git clean -fd"
   exit 1
 fi
 
