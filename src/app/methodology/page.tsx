@@ -13,6 +13,21 @@ export default function MethodologyPage() {
 
   const theoreticalModels = [
     {
+      id: 'classical',
+      name: 'Classical Theory of Tyranny',
+      author: 'Aristotle, Polybius',
+      cluster: 'Classical',
+      keyWorks: 'Politics (Aristotle), Histories (Polybius)',
+      description: `The oldest tradition of thinking about democratic breakdown, dating to ancient Greece:
+• Anacyclosis: Polybius's theory of regime cycling—democracy degenerates into ochlocracy (mob rule), which enables tyranny
+• Demagogue to Tyrant: Aristotle's analysis of how popular leaders subvert law for personal rule
+• Corruption of Virtue: Democracy depends on civic virtue; luxury, inequality, and faction corrode it
+• Mixed Constitution: Stable regimes balance monarchic, aristocratic, and democratic elements
+
+The classical tradition emphasizes CHARACTER and VIRTUE—both of leaders and citizens—as the ultimate safeguard.`,
+      weights: { judicial: 0.20, political: 0.25, publicOpinion: 0.20, civil: 0.15, media: 0.10, mobilizationalBalance: 0.10 }
+    },
+    {
       id: 'linz',
       name: 'Linzian Presidentialism',
       author: 'Juan Linz',
