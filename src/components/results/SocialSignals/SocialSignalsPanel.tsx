@@ -13,7 +13,7 @@ import OpEdCard from '@/components/ui/OpEdCard';
 import EliteSignalsCard from '@/components/ui/EliteSignalsCard';
 import BlueskyCard from '@/components/ui/BlueskyCard';
 import MarketSignalsCard from '@/components/ui/MarketSignalsCard';
-import SectionCard from '@/components/ui/SectionCard';
+import Card from '@/components/ui/Card';
 
 interface SocialSignalsPanelProps {
   socialSignals?: {
@@ -29,7 +29,8 @@ export default function SocialSignalsPanel({ socialSignals }: SocialSignalsPanel
   const { trends, opEds, eliteSignals, bluesky, marketSignals } = socialSignals || {};
 
   return (
-    <SectionCard
+    <Card
+      variant="section"
       className="bg-purple-50 border-purple-200"
       title="Social Signals"
       icon={Activity}
@@ -42,6 +43,6 @@ export default function SocialSignalsPanel({ socialSignals }: SocialSignalsPanel
         {bluesky && <BlueskyCard bluesky={bluesky} />}
         {marketSignals && <MarketSignalsCard marketSignals={marketSignals} />}
       </div>
-    </SectionCard>
+    </Card>
   );
 }

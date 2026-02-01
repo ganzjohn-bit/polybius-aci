@@ -6,8 +6,9 @@ import AnalysisSummary from '@/components/results/AnalysisSummary';
 import FactorBreakdown from '@/components/results/FactorBreakdown';
 import HistoricalComparison from '@/components/results/HistoricalComparison';
 import LoadingState from '@/components/results/LoadingState';
-import OverallScoreCard from '@/components/results/OverallScoreCard';
+import OverallScoreCard from '@/components/ui/OverallScoreCard';
 import ResultsFooter from '@/components/results/ResultsFooter';
+import { getRiskLevel, getProbability } from '@/lib/results-utils';
 import ResultsHeader from '@/components/results/ResultsHeader';
 import SocialSignalsPanel from '@/components/results/SocialSignals/SocialSignalsPanel';
 import ModelComparisonSection from '@/components/calculator/ModelComparisonSection';
@@ -34,7 +35,9 @@ export default function ResultsPage() {
 
         <OverallScoreCard
           aciScore={state.displayResults.aciScore}
-          country={state.displayResults.country}
+          risk={getRiskLevel(state.displayResults.aciScore)}
+          probability={getProbability(state.displayResults.aciScore)}
+          subtitle={state.displayResults.country}
         />
 
         {state.displayResults.summary && (

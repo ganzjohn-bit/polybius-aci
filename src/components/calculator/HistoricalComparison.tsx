@@ -2,8 +2,10 @@
 
 import { BookOpen, Loader2 } from 'lucide-react';
 import type { ComparativeAnalysisData } from '@/types/calculator';
-import SectionCard from '@/components/ui/SectionCard';
-import Pill from '@/components/ui/Pill';
+import { getScoreTextClass } from '@/lib/score-colors';
+import Card from '@/components/ui/Card';
+import ConsensusBox from '@/components/ui/ConsensusBox';
+import HistoricalCaseCard from '@/components/ui/HistoricalCaseCard';
 
 interface HistoricalComparisonProps {
   comparativeData: ComparativeAnalysisData | null;
@@ -27,8 +29,16 @@ export default function HistoricalComparison({
     return null;
   }
 
+  const agreementColorClass =
+    comparativeData.consensus.agreementLevel === 'high'
+      ? 'text-green-700'
+      : comparativeData.consensus.agreementLevel === 'moderate'
+        ? 'text-amber-700'
+        : 'text-red-700';
+
   return (
-    <SectionCard
+    <Card
+      variant="section"
       className="mt-6 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200"
       title="Historical Comparison"
       icon={BookOpen}
@@ -71,96 +81,46 @@ export default function HistoricalComparison({
       </details>
 
       {/* Consensus Box */}
-      <div
-        className={`p-4 rounded-lg mb-4 ${
-          comparativeData.consensus.averageScore >= 60
-            ? 'bg-red-100 border border-red-300'
-            : comparativeData.consensus.averageScore >= 40
-              ? 'bg-amber-100 border border-amber-300'
-              : 'bg-green-100 border border-green-300'
-        }`}
-      >
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-semibold text-slate-700">Comparative Prediction</span>
-          <span
-            className={`text-2xl font-bold ${
-              comparativeData.consensus.averageScore >= 60
-                ? 'text-red-700'
-                : comparativeData.consensus.averageScore >= 40
-                  ? 'text-amber-700'
-                  : 'text-green-700'
-            }`}
-          >
-            {comparativeData.consensus.averageScore}/100
-          </span>
-        </div>
-        <div className="text-sm text-slate-600">
-          Range: {comparativeData.consensus.scoreRange.min}-{comparativeData.consensus.scoreRange.max} |
-          Agreement:{' '}
-          <span
-            className={`font-medium ${
-              comparativeData.consensus.agreementLevel === 'high'
-                ? 'text-green-700'
-                : comparativeData.consensus.agreementLevel === 'moderate'
-                  ? 'text-amber-700'
-                  : 'text-red-700'
-            }`}
-          >
-            {comparativeData.consensus.agreementLevel}
-          </span>
-        </div>
-      </div>
+      <ConsensusBox
+        score={comparativeData.consensus.averageScore}
+        subtitle={
+          <>
+            Range: {comparativeData.consensus.scoreRange.min}-{comparativeData.consensus.scoreRange.max} |
+            Agreement:{' '}
+            <span className={`font-medium ${agreementColorClass}`}>
+              {comparativeData.consensus.agreementLevel}
+            </span>
+          </>
+        }
+      />
 
       {/* Most Similar Historical Cases */}
       <div className="mb-4">
         <h5 className="text-sm font-semibold text-slate-700 mb-2">Most Similar Historical Cases</h5>
         <div className="space-y-2">
           {comparativeData.mostCitedCases.slice(0, 3).map(c => (
-            <div
+            <HistoricalCaseCard
               key={c.caseId}
-              className={`p-3 rounded-lg flex items-center justify-between ${
-                c.outcome === 'consolidated'
-                  ? 'bg-red-50 border border-red-200'
-                  : c.outcome === 'resisted'
-                    ? 'bg-green-50 border border-green-200'
-                    : 'bg-blue-50 border border-blue-200'
-              }`}
-            >
-              <div>
-                <span className="font-medium text-slate-800">{c.country}</span>
-                <span className="text-slate-500 text-sm ml-2">{c.period}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Pill
-                  tone={c.outcome === 'consolidated' ? 'red' : c.outcome === 'resisted' ? 'green' : 'blue'}
-                  variant="strong"
-                  size="xs"
-                >
-                  {c.outcome}
-                </Pill>
-                <span className="text-xs text-slate-500">{c.citedBy.length} models</span>
-              </div>
-            </div>
+              country={c.country}
+              period={c.period}
+              outcome={c.outcome}
+              extra={<span className="text-xs text-slate-500">{c.citedBy.length} models</span>}
+            />
           ))}
         </div>
       </div>
 
       {/* Interpretation */}
       <div className="space-y-2">
-        {comparativeData.interpretation.map((line, i) => (
-          <p
-            key={i}
-            className={`text-sm ${
-              line.includes('warning') || line.includes('Warning')
-                ? 'text-red-700 font-medium'
-                : line.includes('hopeful') || line.includes('Hopeful')
-                  ? 'text-green-700 font-medium'
-                  : 'text-slate-700'
-            }`}
-          >
-            {line}
-          </p>
-        ))}
+        {comparativeData.interpretation.map((line, i) => {
+          const lower = line.toLowerCase();
+          const cls = lower.includes('warning')
+            ? 'text-red-700 font-medium'
+            : lower.includes('hopeful')
+              ? 'text-green-700 font-medium'
+              : 'text-slate-700';
+          return <p key={i} className={`text-sm ${cls}`}>{line}</p>;
+        })}
       </div>
 
       {/* Model-by-Model Breakdown */}
@@ -173,15 +133,7 @@ export default function HistoricalComparison({
             <div key={model.modelName} className="p-3 bg-white rounded-lg border border-slate-200">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium text-slate-700">{model.modelName}</span>
-                <span
-                  className={`font-bold ${
-                    model.predictedOutcome.score >= 60
-                      ? 'text-red-600'
-                      : model.predictedOutcome.score >= 40
-                        ? 'text-amber-600'
-                        : 'text-green-600'
-                  }`}
-                >
+                <span className={`font-bold ${getScoreTextClass(model.predictedOutcome.score)}`}>
                   {model.predictedOutcome.score}/100
                 </span>
               </div>
@@ -203,6 +155,6 @@ export default function HistoricalComparison({
           ))}
         </div>
       </details>
-    </SectionCard>
+    </Card>
   );
 }

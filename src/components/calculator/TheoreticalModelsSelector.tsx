@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Check, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import type { TheoreticalModel } from '@/types/calculator';
-import SectionCard from '@/components/ui/SectionCard';
+import Card from '@/components/ui/Card';
 
 interface TheoreticalModelsSelectorProps {
   models: TheoreticalModel[];
@@ -19,7 +19,7 @@ export default function TheoreticalModelsSelector({
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
 
   return (
-    <SectionCard className="bg-amber-50 border-amber-200">
+    <Card variant="section" className="bg-amber-50 border-amber-200">
       <div className="flex items-center gap-2 mb-4">
         <h3 className="text-xl font-bold text-slate-800">Theoretical Frameworks</h3>
         <div className="group relative">
@@ -72,6 +72,6 @@ export default function TheoreticalModelsSelector({
           </div>
         ))}
       </div>
-    </SectionCard>
+    </Card>
   );
 }

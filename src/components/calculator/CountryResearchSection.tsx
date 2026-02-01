@@ -1,7 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import SectionCard from '@/components/ui/SectionCard';
+import Card from '@/components/ui/Card';
 import SearchModeToggle, { type SearchMode } from './SearchModeToggle';
 
 interface CountryResearchSectionProps {
@@ -30,7 +30,7 @@ export default function CountryResearchSection({
   };
 
   return (
-    <SectionCard className="bg-blue-50 border-blue-200">
+    <Card variant="section" className="bg-blue-50 border-blue-200">
       <h3 className="text-xl font-bold text-slate-800 mb-2">Research a Country</h3>
 
       <SearchModeToggle
@@ -83,6 +83,6 @@ export default function CountryResearchSection({
           </p>
         </div>
       )}
-    </SectionCard>
+    </Card>
   );
 }

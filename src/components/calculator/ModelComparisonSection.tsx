@@ -1,7 +1,7 @@
 'use client';
 
 import type { ModelScore, ClusterAverage } from '@/types/calculator';
-import SectionCard from '@/components/ui/SectionCard';
+import Card from '@/components/ui/Card';
 
 interface ModelComparisonSectionProps {
   modelScores: ModelScore[];
@@ -31,7 +31,7 @@ export default function ModelComparisonSection({
   if (!hasNonZeroScores) return null;
 
   return (
-    <SectionCard className="mb-10 bg-slate-100 border-slate-200">
+    <Card variant="section" className="mb-10 bg-slate-100 border-slate-200">
       <h3 className="text-xl font-bold text-slate-800 mb-2">Theoretical Model Comparison</h3>
       <p className="text-slate-600 text-sm mb-4">How different frameworks interpret the current data</p>
 
@@ -205,6 +205,6 @@ export default function ModelComparisonSection({
           </p>
         )}
       </div>
-    </SectionCard>
+    </Card>
   );
 }

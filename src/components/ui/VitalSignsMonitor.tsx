@@ -1,7 +1,7 @@
 'use client';
 
 import { Activity, Heart } from 'lucide-react';
-import SectionCard from '@/components/ui/SectionCard';
+import Card from '@/components/ui/Card';
 import VitalSignCard from '@/components/ui/VitalSignCard';
 
 interface VitalSignFactor {
@@ -31,7 +31,8 @@ export default function VitalSignsMonitor({
   const criticalFactors = factors.filter(f => (scores[f.id] || 0) >= f.dangerThreshold);
 
   return (
-    <SectionCard
+    <Card
+      variant="section"
       className="bg-slate-900 border-slate-700"
       title="Democratic Vital Signs"
       icon={Activity}
@@ -77,6 +78,6 @@ export default function VitalSignsMonitor({
           </div>
         </div>
       )}
-    </SectionCard>
+    </Card>
   );
 }

@@ -8,7 +8,7 @@ import type {
   BlueskyData,
   MarketSignalsData,
 } from '@/types/calculator';
-import SectionCard from '@/components/ui/SectionCard';
+import Card from '@/components/ui/Card';
 import TrendsCard from '@/components/ui/TrendsCard';
 import OpEdCard from '@/components/ui/OpEdCard';
 import EliteSignalsCard from '@/components/ui/EliteSignalsCard';
@@ -66,7 +66,8 @@ export default function SocialSignalsDashboard({
   hasApiKey,
 }: SocialSignalsDashboardProps) {
   return (
-    <SectionCard
+    <Card
+      variant="section"
       className="bg-purple-50 border-purple-200"
       title="Social Signals"
       icon={Activity}
@@ -187,6 +188,6 @@ export default function SocialSignalsDashboard({
           Enter a country above and click the buttons to analyze search trends, op-ed dynamics, and social media discourse for signs of democratic stress. &quot;Elite Signals&quot; is US-specific and tracks GOP coordination and propaganda effectiveness.
         </p>
       )}
-    </SectionCard>
+    </Card>
   );
 }

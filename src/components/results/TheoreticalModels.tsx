@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
 
 import type { Factor, ModelUsed } from '@/types/results';
-import SectionCard from '@/components/ui/SectionCard';
+import Card from '@/components/ui/Card';
 import Pill from '@/components/ui/Pill';
 
 interface TheoreticalModelsProps {
@@ -16,7 +16,8 @@ export default function TheoreticalModels({ modelsUsed, factors }: TheoreticalMo
   const [expandedModels, setExpandedModels] = useState<Record<string, boolean>>({});
 
   return (
-    <SectionCard
+    <Card
+      variant="section"
       className="bg-blue-50 border-blue-200"
       title="Theoretical Models Applied"
       icon={BookOpen}
@@ -78,6 +79,6 @@ export default function TheoreticalModels({ modelsUsed, factors }: TheoreticalMo
           </div>
         ))}
       </div>
-    </SectionCard>
+    </Card>
   );
 }

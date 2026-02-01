@@ -1,23 +1,30 @@
+import type { ReactNode } from 'react';
 import { AlertCircle } from 'lucide-react';
-
-import { getProbability, getRiskLevel } from '@/lib/results-utils';
+import type { RiskLevel } from '@/types/calculator';
 
 interface OverallScoreCardProps {
   aciScore: number;
-  country: string;
+  risk: RiskLevel;
+  probability: string;
+  subtitle?: ReactNode;
+  actions?: ReactNode;
 }
 
-export default function OverallScoreCard({ aciScore, country }: OverallScoreCardProps) {
-  const risk = getRiskLevel(aciScore);
-
+export default function OverallScoreCard({
+  aciScore,
+  risk,
+  probability,
+  subtitle,
+  actions,
+}: OverallScoreCardProps) {
   return (
     <div className="mb-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Overall ACI Score</h2>
           <p className="text-slate-600">
-            {country} | Estimated consolidation probability:{' '}
-            <span className="font-semibold">{getProbability(aciScore)}</span>
+            {subtitle && <>{subtitle} | </>}
+            Estimated consolidation probability: <span className="font-semibold">{probability}</span>
           </p>
         </div>
         <span className="text-6xl font-bold text-slate-800">{aciScore.toFixed(1)}</span>
@@ -36,6 +43,8 @@ export default function OverallScoreCard({ aciScore, country }: OverallScoreCard
         <AlertCircle className={`inline-block w-8 h-8 ${risk.textColor} mb-2`} />
         <div className={`font-bold text-2xl ${risk.textColor}`}>{risk.level}</div>
       </div>
+
+      {actions}
     </div>
   );
 }

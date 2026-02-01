@@ -1,6 +1,7 @@
 import { BookOpen } from 'lucide-react';
-import SectionCard from '@/components/ui/SectionCard';
-import Pill from '@/components/ui/Pill';
+import Card from '@/components/ui/Card';
+import ConsensusBox from '@/components/ui/ConsensusBox';
+import HistoricalCaseCard from '@/components/ui/HistoricalCaseCard';
 
 interface HistoricalComparisonProps {
   historicalComparison: {
@@ -12,7 +13,8 @@ interface HistoricalComparisonProps {
 
 export default function HistoricalComparison({ historicalComparison }: HistoricalComparisonProps) {
   return (
-    <SectionCard
+    <Card
+      variant="section"
       className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200"
       title="Historical Comparison"
       icon={BookOpen}
@@ -32,81 +34,34 @@ export default function HistoricalComparison({ historicalComparison }: Historica
           </p>
         </div>
       </details>
-      <div
-        className={`p-4 rounded-lg mb-4 ${
-          historicalComparison.averageScore >= 60
-            ? 'bg-red-100 border border-red-300'
-            : historicalComparison.averageScore >= 40
-              ? 'bg-amber-100 border border-amber-300'
-              : 'bg-green-100 border border-green-300'
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-slate-700">Comparative Prediction</span>
-          <span
-            className={`text-2xl font-bold ${
-              historicalComparison.averageScore >= 60
-                ? 'text-red-700'
-                : historicalComparison.averageScore >= 40
-                  ? 'text-amber-700'
-                  : 'text-green-700'
-            }`}
-          >
-            {historicalComparison.averageScore}/100
-          </span>
-        </div>
-      </div>
+
+      <ConsensusBox score={historicalComparison.averageScore} />
+
       <div className="mb-4">
         <h5 className="text-sm font-semibold text-slate-700 mb-2">Most Similar Historical Cases</h5>
         <div className="space-y-2">
           {historicalComparison.mostSimilarCases.slice(0, 3).map((caseItem, index) => (
-            <div
+            <HistoricalCaseCard
               key={index}
-              className={`p-3 rounded-lg flex items-center justify-between ${
-                caseItem.outcome === 'consolidated'
-                  ? 'bg-red-50 border border-red-200'
-                  : caseItem.outcome === 'resisted'
-                    ? 'bg-green-50 border border-green-200'
-                    : 'bg-blue-50 border border-blue-200'
-              }`}
-            >
-              <div>
-                <span className="font-medium text-slate-800">{caseItem.country}</span>
-                <span className="text-slate-500 text-sm ml-2">{caseItem.period}</span>
-              </div>
-              <Pill
-                tone={
-                  caseItem.outcome === 'consolidated'
-                    ? 'red'
-                    : caseItem.outcome === 'resisted'
-                      ? 'green'
-                      : 'blue'
-                }
-                variant="strong"
-                size="xs"
-              >
-                {caseItem.outcome}
-              </Pill>
-            </div>
+              country={caseItem.country}
+              period={caseItem.period}
+              outcome={caseItem.outcome}
+            />
           ))}
         </div>
       </div>
+
       <div className="space-y-2">
-        {historicalComparison.interpretation.map((line, index) => (
-          <p
-            key={index}
-            className={`text-sm ${
-              line.toLowerCase().includes('warning')
-                ? 'text-red-700 font-medium'
-                : line.toLowerCase().includes('hopeful')
-                  ? 'text-green-700 font-medium'
-                  : 'text-slate-700'
-            }`}
-          >
-            {line}
-          </p>
-        ))}
+        {historicalComparison.interpretation.map((line, i) => {
+          const lower = line.toLowerCase();
+          const cls = lower.includes('warning')
+            ? 'text-red-700 font-medium'
+            : lower.includes('hopeful')
+              ? 'text-green-700 font-medium'
+              : 'text-slate-700';
+          return <p key={i} className={`text-sm ${cls}`}>{line}</p>;
+        })}
       </div>
-    </SectionCard>
+    </Card>
   );
 }

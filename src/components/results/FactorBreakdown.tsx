@@ -1,7 +1,7 @@
 import { Minus, TrendingDown, TrendingUp } from 'lucide-react';
 
 import type { Factor, FactorResult } from '@/types/results';
-import SectionCard from '@/components/ui/SectionCard';
+import Card from '@/components/ui/Card';
 
 interface FactorBreakdownProps {
   factorResults: Record<string, FactorResult>;
@@ -10,7 +10,7 @@ interface FactorBreakdownProps {
 
 export default function FactorBreakdown({ factorResults, factors }: FactorBreakdownProps) {
   return (
-    <SectionCard className="bg-white border-slate-200" title="Factor Analysis">
+    <Card variant="section" className="bg-white border-slate-200" title="Factor Analysis">
       <div className="space-y-4">
         {factors.map(factor => {
           const data = factorResults[factor.id];
@@ -56,6 +56,6 @@ export default function FactorBreakdown({ factorResults, factors }: FactorBreakd
           );
         })}
       </div>
-    </SectionCard>
+    </Card>
   );
 }

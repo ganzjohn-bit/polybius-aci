@@ -1,4 +1,4 @@
-import SectionCard from '@/components/ui/SectionCard';
+import Card from '@/components/ui/Card';
 
 interface AnalysisSummaryProps {
   summary: string;
@@ -6,8 +6,8 @@ interface AnalysisSummaryProps {
 
 export default function AnalysisSummary({ summary }: AnalysisSummaryProps) {
   return (
-    <SectionCard className="bg-slate-50 border-slate-200" title="Analysis Summary">
+    <Card variant="section" className="bg-slate-50 border-slate-200" title="Analysis Summary">
       <p className="text-slate-700 leading-relaxed whitespace-pre-line">{summary}</p>
-    </SectionCard>
+    </Card>
   );
 }
