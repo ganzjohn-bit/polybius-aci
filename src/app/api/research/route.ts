@@ -447,29 +447,6 @@ MOBILIZATIONAL_BALANCE (civil society & digital infrastructure - per Berman, Ril
   it lacks hegemonic consent. The same contestation that prevents hegemony also prevents durable consolidation."
   This lets the SCORE capture the danger while the INTERPRETATION captures the structural limits.
 
-  REGIME INTERNAL DYNAMICS — HARDLINERS VS SOFTLINERS (O'Donnell-Schmitter / Paxton):
-  Authoritarian movements are not monoliths. Assess the internal tension between:
-  - HARDLINERS/RADICALIZERS: Push revolution further, destroy institutions, punish enemies, permanent mobilization.
-    (US examples: Bannon, Miller, Musk/DOGE, MAGA base demanding escalation, "enemy within" rhetoric)
-  - SOFTLINERS/NORMALIZERS: Stabilize, cut deals with traditional elites, achieve durable governance.
-    (US examples: Wall Street donors, traditional GOP, business interests seeking policy wins without chaos)
-
-  Search for evidence of internal regime conflict:
-  - Public disagreements between factions (tariffs, DOGE tactics, immigration enforcement levels)
-  - Personnel battles (radicals empowered or sidelined? normalizers purged or accommodated?)
-  - Business/donor class breaking with regime on specific issues
-  - Rhetoric: escalating toward "enemy within" or moderating for coalition maintenance?
-
-  PAXTON'S KEY INSIGHT: Fascist consolidation historically required CHOOSING. Hitler chose normalizers over SA
-  (Night of Long Knives), Mussolini accommodated monarchy/church/capital. The revolution gets tamed for durability.
-  - If leader CANNOT choose (Caesarist oscillation) → regime stays unstable, high damage but low consolidation
-  - If leader chooses radicals → coalition fractures, business/institutional defection, backlash
-  - If leader chooses normalizers → base may demobilize, but durable consolidation becomes possible
-
-  USE THIS IN ANALYSIS: The hardliner/softliner battle should inform the summary (this IS the news), the Gramscian
-  diagnosis (Caesarism can't resolve this), Berman-Riley (is mass movement being tamed or radicalized?), and
-  Svolik (are softliner defections a constraint signal?). Do not add a separate field — weave into existing analysis.
-
   WEIGHTING DIGITAL vs TRADITIONAL:
   - Traditional orgs with dues, meetings, persistent local presence = ALWAYS weighted higher than digital equivalents
   - Digital infrastructure that has CONVERTED to durable offline organization (precinct capture, school board
@@ -760,7 +737,7 @@ MODEL-SPECIFIC INTERPRETIVE DIAGNOSES:
       "majorDiscussions": ["podcast: topic discussed"],
       "regimeVsOpposition": "regime-dominated/balanced/opposition-dominated"
     },
-    "nixonToChinaMoments": ["any unexpected editorial alignments - regime outlet criticizing regime, opposition praising, OR softliner/business/traditional GOP breaking with hardliners publicly"],
+    "nixonToChinaMoments": ["any unexpected editorial alignments - regime outlet criticizing regime, or opposition praising"],
     "cultureIndustryCapture": {
       "authoritarianDiscourseLevel": "subcultural/mainstreaming/normalized",
       "evidence": ["where authoritarian rhetoric appears"],
@@ -838,7 +815,7 @@ MEDIA LANDSCAPE (search for recent op-eds, commentary, podcast discussions):
 - Populist outlets: What's Breitbart, Daily Wire saying? What's HuffPost, Vox saying?
 - Major Substacks: What are Heather Cox Richardson, Matt Yglesias, Bari Weiss, Matt Taibbi, Glenn Greenwald writing?
 - Major podcasts: What are Joe Rogan, Tucker Carlson, Ben Shapiro, Pod Save America, Ezra Klein discussing?
-- NIXON-TO-CHINA MOMENTS: Any regime-friendly outlets criticizing the regime? Any opposition outlets praising? ALSO: softliner/normalizer defections — business leaders, Wall Street, traditional GOP figures publicly breaking with hardliner positions. These are HIGH-SIGNAL social indicators of internal regime stress.
+- NIXON-TO-CHINA MOMENTS: Any regime-friendly outlets criticizing the regime? Any opposition outlets praising?
 - AUTHORITARIAN DISCOURSE: Is dehumanizing language (vermin, invasion, enemies of the people), scapegoating, or strongman rhetoric appearing in mainstream/elite outlets or confined to populist fringe?
 
 ${scoringRubric}
