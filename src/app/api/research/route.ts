@@ -843,6 +843,7 @@ ${jsonFormat}`;
       messages: { role: string; content: string }[];
       tools?: { type: string; name: string }[];
     } = {
+      // TODO: updates to claude-sonnet-4-5-20250929
       model: 'claude-sonnet-4-20250514',
       max_tokens: searchMode === 'live' ? 16000 : 4096,
       temperature: 0, // Use 0 for consistent, deterministic results
