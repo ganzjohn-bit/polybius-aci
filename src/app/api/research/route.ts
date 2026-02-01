@@ -613,7 +613,8 @@ MODEL-SPECIFIC INTERPRETIVE DIAGNOSES:
   Each model should produce a 1-2 sentence diagnosis that reflects ITS OWN theoretical framework's reading of
   the evidence — not just a restatement of the factor scores with different emphasis.`;
 
-    const jsonFormat = `TREND VALUES - use ONLY these three values for all "trend" fields:
+    const jsonFormat = `IMPORTANT: After completing your research, you MUST respond with ONLY the JSON below. No introductory text, no explanations, no markdown - just the raw JSON object starting with { and ending with }:
+  TREND VALUES - use ONLY these three values for all "trend" fields:
   "improving" = score is going DOWN (situation getting BETTER for democracy, WORSE for authoritarian consolidation)
   "deteriorating" = score is going UP (situation getting WORSE for democracy, BETTER for authoritarian consolidation)
   "stable" = score is roughly unchanged
@@ -782,7 +783,6 @@ MEDIA LANDSCAPE (search for recent op-eds, commentary, podcast discussions):
 
 ${scoringRubric}
 
-IMPORTANT: After completing your research, you MUST respond with ONLY the JSON below. No introductory text, no explanations, no markdown - just the raw JSON object starting with { and ending with }:
 ${jsonFormat}`;
 
     const quickAnalysisPrompt = `You are a comparative politics researcher specializing in democratic backsliding and authoritarian consolidation. Based on your knowledge (up to early 2025), analyze ${country}'s vulnerability to authoritarian consolidation.
@@ -831,7 +831,6 @@ MEDIA LANDSCAPE:
 
 ${scoringRubric}
 
-Respond with ONLY this JSON (no other text):
 ${jsonFormat}`;
 
     const prompt = searchMode === 'live' ? liveSearchPrompt : quickAnalysisPrompt;
