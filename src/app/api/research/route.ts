@@ -9,6 +9,10 @@ interface ContentBlock {
 interface ApiResponse {
   content: ContentBlock[];
   stop_reason: string;
+  usage?: {
+    input_tokens: number;
+    output_tokens: number;
+  };
 }
 
 interface CacheEntry {
@@ -914,11 +918,18 @@ ${jsonFormat}`;
     try {
       const results = JSON.parse(jsonMatch[0]);
       // Clean up any XML/HTML artifacts in the response
-      const cleanedResults = cleanObjectStrings(results);
+      const cleanedResults = cleanObjectStrings(results) as Record<string, unknown>;
       // Store in cache
-      cache.set(cacheKey, { data: cleanedResults as Record<string, unknown>, timestamp: Date.now() });
+      cache.set(cacheKey, { data: cleanedResults, timestamp: Date.now() });
       console.log(`Cached result for ${cacheKey}`);
-      return NextResponse.json(cleanedResults);
+      // Include token usage in response
+      return NextResponse.json({
+        ...cleanedResults,
+        _usage: data.usage ? {
+          input_tokens: data.usage.input_tokens,
+          output_tokens: data.usage.output_tokens
+        } : null
+      });
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
       return NextResponse.json({

@@ -8,6 +8,10 @@ interface StepState {
   status: 'idle' | 'loading' | 'success' | 'error';
   data: unknown;
   error?: string;
+  usage?: {
+    input_tokens: number;
+    output_tokens: number;
+  } | null;
 }
 
 interface SynthesisResult {
@@ -369,7 +373,9 @@ export default function PipelinePage() {
         throw new Error(err.error || `HTTP ${response.status}`);
       }
       const data = await response.json();
-      setResearch({ status: 'success', data });
+      const usage = data._usage;
+      delete data._usage;
+      setResearch({ status: 'success', data, usage });
     } catch (err) {
       setResearch({ status: 'error', data: null, error: err instanceof Error ? err.message : 'Failed' });
     }
@@ -435,7 +441,9 @@ export default function PipelinePage() {
         throw new Error(err.error || `HTTP ${response.status}`);
       }
       const data = await response.json();
-      setOpEds({ status: 'success', data });
+      const usage = data._usage;
+      delete data._usage;
+      setOpEds({ status: 'success', data, usage });
     } catch (err) {
       setOpEds({ status: 'error', data: null, error: err instanceof Error ? err.message : 'Failed' });
     }
@@ -454,7 +462,9 @@ export default function PipelinePage() {
         throw new Error(err.error || `HTTP ${response.status}`);
       }
       const data = await response.json();
-      setEliteSignals({ status: 'success', data });
+      const usage = data._usage;
+      delete data._usage;
+      setEliteSignals({ status: 'success', data, usage });
     } catch (err) {
       setEliteSignals({ status: 'error', data: null, error: err instanceof Error ? err.message : 'Failed' });
     }
@@ -492,7 +502,9 @@ export default function PipelinePage() {
         throw new Error(err.error || `HTTP ${response.status}`);
       }
       const data = await response.json();
-      setMarketSignals({ status: 'success', data });
+      const usage = data._usage;
+      delete data._usage;
+      setMarketSignals({ status: 'success', data, usage });
     } catch (err) {
       setMarketSignals({ status: 'error', data: null, error: err instanceof Error ? err.message : 'Failed' });
     }
@@ -678,6 +690,11 @@ export default function PipelinePage() {
       <div className="text-sm text-slate-600 bg-slate-50 rounded p-2 font-mono">
         {getSummary(name, state)}
       </div>
+      {state.usage && (
+        <div className="mt-2 text-xs text-slate-400 font-mono">
+          Tokens: {state.usage.input_tokens.toLocaleString()} in / {state.usage.output_tokens.toLocaleString()} out
+        </div>
+      )}
     </div>
   );
 
