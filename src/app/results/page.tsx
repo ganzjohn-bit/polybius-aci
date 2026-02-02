@@ -90,6 +90,11 @@ export default function ResultsPage() {
     return '85%+';
   };
 
+  const factorTrends: Record<string, string | undefined> = {};
+  factors.forEach(factor => {
+    factorTrends[factor.id] = displayResults.factorResults?.[factor.id]?.trend;
+  });
+
   const hasScores = Object.keys(displayResults.scores).length > 0 && Object.values(displayResults.scores).some(s => s > 0);
   const { trends, opEds, eliteSignals, bluesky, marketSignals } = displayResults.socialSignals || {};
   const hasSocialSignals = trends || opEds || eliteSignals || bluesky || marketSignals;
@@ -162,6 +167,7 @@ export default function ResultsPage() {
             scores={displayResults.scores}
             overallScore={displayResults.aciScore}
             factors={factors}
+            trends={factorTrends}
           />
         )}
 
@@ -259,16 +265,12 @@ export default function ResultsPage() {
           return (
             <Card
               variant='section'
-              className="bg-blue-50 border-blue-200"
-              title="Theoretical Models Applied"
+              className="bg-slate-50 border-slate-200"
+              title="Theoretical Model Assessment"
               icon={BookOpen}
-              iconColor='text-blue-700'
+              iconColor='text-slate-700'
               headerContent={<span className="text-sm text-slate-500">({displayResults.modelsUsed.length} models)</span>}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <BookOpen className="w-5 h-5 text-slate-700" />
-                <h2 className="text-xl font-bold text-slate-800">Theoretical Model Assessment</h2>
-              </div>
               <p className="text-sm text-slate-500 mb-4">
                 Each model applies its own theoretical weights to the shared factor scores, producing different risk assessments.
                 Models flagged as outliers deviate &gt;1 standard deviation from the mean ({meanScore.toFixed(1)}).
@@ -413,6 +415,7 @@ export default function ResultsPage() {
             title='Historical Comparison'
             icon={BookOpen}
             iconColor='text-amber-700'
+            className='bg-amber-50 border-amber-200'
           >
             <details className="mb-4 bg-white/60 rounded-lg border border-amber-100">
               <summary className="p-3 text-sm font-medium text-slate-700 cursor-pointer hover:text-slate-900">How does this comparison work?</summary>

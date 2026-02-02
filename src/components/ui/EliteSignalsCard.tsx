@@ -42,18 +42,6 @@ interface EliteSignalsCardProps {
 }
 
 export default function EliteSignalsCard({ eliteSignals, showDetails = false }: EliteSignalsCardProps) {
-  const coordinationTone =
-    eliteSignals.defections.coordinationScore > 70
-      ? 'red'
-      : eliteSignals.defections.coordinationScore > 40
-        ? 'yellow'
-        : 'green';
-  const propagandaTone =
-    eliteSignals.propaganda.effectivenessScore > 70
-      ? 'red'
-      : eliteSignals.propaganda.effectivenessScore > 40
-        ? 'yellow'
-        : 'green';
 
   if (showDetails) {
     return (
@@ -146,10 +134,10 @@ export default function EliteSignalsCard({ eliteSignals, showDetails = false }: 
       iconColor="text-amber-600"
       headerContent={
         <>
-          <Pill tone={coordinationTone} size="xs">
+          <Pill tone="slate" size="xs">
             Coordination: {eliteSignals.defections.coordinationScore}
           </Pill>
-          <Pill tone={propagandaTone} size="xs">
+          <Pill tone="slate" size="xs">
             Propaganda: {eliteSignals.propaganda.effectivenessScore}
           </Pill>
         </>

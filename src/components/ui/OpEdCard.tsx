@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen } from 'lucide-react';
+import { Users } from 'lucide-react';
 import Card from '@/components/ui/Card';
 
 interface DerivedSignal {
@@ -46,7 +46,7 @@ export default function OpEdCard({ opEds, showDetails = false }: OpEdCardProps) 
     <Card
       className="border-rose-200"
       title={showDetails ? `Hegemonic Analysis: ${opEds.country}` : 'Hegemonic Analysis'}
-      icon={BookOpen}
+      icon={Users}
       iconColor="text-rose-600"
       headerContent={<span className="text-sm text-slate-500">{opEds.totalArticles} articles</span>}
     >
