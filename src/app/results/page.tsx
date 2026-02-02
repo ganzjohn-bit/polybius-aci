@@ -1,145 +1,21 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { Activity, TrendingUp, TrendingDown, Minus, BookOpen, ExternalLink, AlertCircle, Search, Users, Shield, Radio, ChevronDown, ChevronUp } from 'lucide-react';
+import { Activity, TrendingUp, TrendingDown, Minus, BookOpen, ExternalLink} from 'lucide-react';
+import VitalSignsMonitor from '@/components/ui/VitalSignsMonitor';
+import type { Factor, StoredResults } from '@/types/results';
+import BlueskyCard from '@/components/ui/BlueskyCard';
+import OverallScoreCard from '@/components/ui/OverallScoreCard';
+import TrendsCard from '@/components/ui/TrendsCard';
+import OpEdCard from '@/components/ui/OpEdCard';
+import EliteSignalsCard from '@/components/ui/EliteSignalsCard';
+import MarketSignalsCard from '@/components/ui/MarketSignalsCard';
+import Card from '@/components/ui/Card';
+import ConsensusBox from '@/components/ui/ConsensusBox';
+import Pill from '@/components/ui/Pill';
 
-// Social Signals Interfaces
-interface TrendCategory {
-  category: string;
-  averageInterest: number;
-  peakInterest: number;
-  trend: string;
-  topQueries: string[];
-}
-
-interface TrendsData {
-  country: string;
-  categoryAggregates: TrendCategory[];
-  overallTemperature: number;
-  interpretation: string[];
-}
-
-interface OpEdArticle {
-  title: string;
-  description: string;
-  source: { name: string };
-  sentiment: 'negative' | 'neutral' | 'positive';
-  outletClass: string;
-  outletAffinity: string;
-  isNixonToChina: boolean;
-  nixonType?: string;
-}
-
-interface OpEdData {
-  country: string;
-  totalArticles: number;
-  articles: OpEdArticle[];
-  nixonMoments: OpEdArticle[];
-  interpretation: string[];
-}
-
-interface DefectionArticle {
-  title: string;
-  description: string;
-  source: { name: string };
-  figure: string;
-  figureRole: string;
-  severity: number;
-}
-
-interface EliteSignalsData {
-  defections: {
-    articles: DefectionArticle[];
-    totalFound: number;
-    coordinationScore: number;
-  };
-  propaganda: {
-    effectivenessScore: number;
-  };
-  interpretation: string[];
-}
-
-interface BlueskyPost {
-  text: string;
-  author: string;
-  likeCount: number;
-  sentiment: string;
-}
-
-interface BlueskyData {
-  country: string;
-  totalPosts: number;
-  posts: BlueskyPost[];
-  sentimentBreakdown: { negative: number; neutral: number; positive: number };
-  temperature: number;
-  interpretation: string[];
-}
-
-interface MarketSignalsData {
-  marketConditions: {
-    sp500: { level: number; weekChange: number; trend: string };
-    treasury10y: { yield: number; trend: string };
-    vix: { level: number; interpretation: string };
-  };
-  tacoPatternAnalysis: {
-    instancesLast90Days: number;
-    patternHolding: boolean;
-    summary: string;
-  };
-  businessSentiment: {
-    overall: string;
-    keyHeadlines: string[];
-    eliteAlignment: string;
-  };
-  overallAssessment: {
-    marketConstraintLevel: string;
-    consolidationImplication: string;
-    summary: string;
-  };
-}
-
-interface ModelUsed {
-  id: string;
-  name: string;
-  author: string;
-  cluster: string;
-  shortDesc: string;
-  fullDesc: string;
-  keyWorks: string;
-  weights: Record<string, number>;
-}
-
-interface FactorResult {
-  score: number;
-  evidence: string;
-  trend: string;
-}
-
-interface StoredResults {
-  generatedAt: string;
-  country: string;
-  aciScore: number;
-  riskLevel: string;
-  scores: Record<string, number>;
-  summary: string;
-  factorResults: Record<string, FactorResult>;
-  historicalComparison?: {
-    averageScore: number;
-    mostSimilarCases: { country: string; period: string; outcome: string }[];
-    interpretation: string[];
-  };
-  socialSignals?: {
-    trends: TrendsData | null;
-    opEds: OpEdData | null;
-    eliteSignals: EliteSignalsData | null;
-    bluesky: BlueskyData | null;
-    marketSignals: MarketSignalsData | null;
-  };
-  modelsUsed?: ModelUsed[];
-  modelDiagnoses?: Record<string, string>;
-}
-
-const factors = [
+const factors: Factor[] = [
   { id: 'judicial', name: 'Judicial Independence', dangerThreshold: 40 },
   { id: 'federalism', name: 'Federalism/Regional Resistance', dangerThreshold: 50 },
   { id: 'political', name: 'Political Competition', dangerThreshold: 55 },
@@ -166,7 +42,6 @@ export default function ResultsPage() {
   const [results, setResults] = useState<StoredResults | null>(null);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [expandedModels, setExpandedModels] = useState<Record<string, boolean>>({});
   const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
@@ -215,8 +90,12 @@ export default function ResultsPage() {
     return '85%+';
   };
 
+  const factorTrends: Record<string, string | undefined> = {};
+  factors.forEach(factor => {
+    factorTrends[factor.id] = displayResults.factorResults?.[factor.id]?.trend;
+  });
+
   const hasScores = Object.keys(displayResults.scores).length > 0 && Object.values(displayResults.scores).some(s => s > 0);
-  const risk = getRiskLevel(displayResults.aciScore);
   const { trends, opEds, eliteSignals, bluesky, marketSignals } = displayResults.socialSignals || {};
   const hasSocialSignals = trends || opEds || eliteSignals || bluesky || marketSignals;
 
@@ -246,9 +125,11 @@ export default function ResultsPage() {
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center gap-4">
-            <img
+            <Image
               src="/polybius-logo.png"
               alt="Polybius"
+              width={80}
+              height={96}
               className="w-16 h-20 md:w-20 md:h-24 object-contain"
             />
             <div>
@@ -271,293 +152,59 @@ export default function ResultsPage() {
         </div>
 
         {/* Overall Score */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-800">Overall ACI Score</h2>
-              <p className="text-slate-600">
-                {displayResults.country} | Estimated consolidation probability: <span className="font-semibold">{getProbability(displayResults.aciScore)}</span>
-              </p>
-            </div>
-            <span className="text-6xl font-bold text-slate-800">{displayResults.aciScore.toFixed(1)}</span>
-          </div>
-
-          <div className="w-full bg-slate-200 rounded-full h-12 mb-4 overflow-hidden">
-            <div
-              className={`h-full ${risk.color} rounded-full flex items-center justify-end pr-4 transition-all duration-700`}
-              style={{ width: `${Math.max(Math.min(displayResults.aciScore, 100), 3)}%` }}
-            >
-              {displayResults.aciScore > 15 && <span className="text-white font-bold text-lg">{displayResults.aciScore.toFixed(1)}</span>}
-            </div>
-          </div>
-
-          <div className={`${risk.bgLight} rounded-xl p-5 text-center border-2 ${risk.color.replace('bg-', 'border-')}`}>
-            <AlertCircle className={`inline-block w-8 h-8 ${risk.textColor} mb-2`} />
-            <div className={`font-bold text-2xl ${risk.textColor}`}>{displayResults.riskLevel}</div>
-          </div>
-        </div>
+        <OverallScoreCard aciScore={displayResults.aciScore} risk={getRiskLevel(displayResults.aciScore)} probability={getProbability(displayResults.aciScore)} />
 
         {/* Summary */}
         {displayResults.summary && (
-          <div className="bg-slate-50 rounded-xl p-6 mb-8 border border-slate-200">
-            <h2 className="text-xl font-bold text-slate-800 mb-4">Analysis Summary</h2>
+          <Card variant="section" title="Analysis Summary" className="bg-slate-50 border-slate-200">
             <p className="text-slate-700 leading-relaxed whitespace-pre-line">{displayResults.summary}</p>
-          </div>
+          </Card>
         )}
 
         {/* Vital Signs Dashboard */}
         {hasScores && (
-          <div className="bg-slate-900 rounded-xl p-6 mb-8 border border-slate-700">
-            <div className="flex items-center gap-3 mb-5">
-              <Activity className="w-6 h-6 text-green-400" />
-              <h3 className="text-xl font-bold text-white">Democratic Vital Signs</h3>
-              <div className="flex-1" />
-              <div className="flex items-center gap-2">
-                <span className={`inline-block w-3 h-3 rounded-full ${displayResults.aciScore < 40 ? 'bg-green-500' : displayResults.aciScore < 60 ? 'bg-yellow-500' : 'bg-red-500'} ${displayResults.aciScore >= 50 ? 'animate-pulse' : ''}`} />
-                <span className="text-slate-400 text-sm font-mono">
-                  {displayResults.aciScore < 40 ? 'STABLE' : displayResults.aciScore < 60 ? 'ELEVATED' : 'CRITICAL'}
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {factors.map(factor => {
-                const score = displayResults.scores[factor.id] || 0;
-                const factorData = displayResults.factorResults?.[factor.id];
-                const trend = factorData?.trend;
-                const isCritical = score >= factor.dangerThreshold;
-                const isWarning = score >= factor.dangerThreshold - 15 && score < factor.dangerThreshold;
-
-                return (
-                  <div
-                    key={factor.id}
-                    className={`relative rounded-lg p-3 ${
-                      isCritical ? 'bg-red-950 border border-red-500' :
-                      isWarning ? 'bg-yellow-950 border border-yellow-600' :
-                      'bg-slate-800 border border-slate-600'
-                    }`}
-                  >
-                    {isCritical && <div className="absolute inset-0 rounded-lg bg-red-500 opacity-20 animate-pulse" />}
-                    <div className="relative">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-slate-400 truncate pr-1">
-                          {factor.name.replace('/', '/ ').split(' ').slice(0, 2).join(' ')}
-                        </span>
-                        {isCritical && <span className="text-red-400 text-xs">!</span>}
-                      </div>
-                      <div className="relative w-16 h-16 mx-auto mb-2">
-                        <svg className="w-full h-full transform -rotate-90">
-                          <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" className="text-slate-700" />
-                          <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round"
-                            strokeDasharray={`${score * 1.76} 176`}
-                            className={`${isCritical ? 'text-red-500' : isWarning ? 'text-yellow-500' : score < 30 ? 'text-green-500' : 'text-blue-500'} transition-all duration-700`}
-                          />
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className={`text-lg font-bold font-mono ${isCritical ? 'text-red-400' : isWarning ? 'text-yellow-400' : 'text-white'}`}>{score}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-center gap-1 h-4">
-                        {trend && (() => {
-                          const t = trend.toLowerCase();
-                          // "improving" = score going down = better for democracy (green)
-                          const isImproving = t.includes('improv') || t.includes('strengthen') || t.includes('resist');
-                          // "deteriorating" = score going up = worse for democracy (red)
-                          const isDeteriorating = t.includes('deter') || t.includes('worsen') || t.includes('grow') || t.includes('escalat') || t.includes('increas');
-                          const isStable = t.includes('stable') || t.includes('unchanged');
-                          if (isImproving) return <><TrendingDown className="w-3 h-3 text-green-400" /><span className="text-xs text-green-400">improving</span></>;
-                          if (isDeteriorating) return <><TrendingUp className="w-3 h-3 text-red-400" /><span className="text-xs text-red-400">worsening</span></>;
-                          if (isStable) return <><Minus className="w-3 h-3 text-slate-400" /><span className="text-xs text-slate-400">stable</span></>;
-                          return null;
-                        })()}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <VitalSignsMonitor
+            scores={displayResults.scores}
+            overallScore={displayResults.aciScore}
+            factors={factors}
+            trends={factorTrends}
+          />
         )}
 
         {/* Social Signals Dashboard */}
         {hasSocialSignals && (
-          <div className="bg-purple-50 rounded-xl p-6 mb-8 border border-purple-200">
-            <div className="flex items-center gap-2 mb-4">
-              <Activity className="w-5 h-5 text-purple-600" />
-              <h3 className="text-xl font-bold text-slate-800">Social Signals</h3>
-            </div>
-
+          <Card variant="section" title="Social Signals" icon={Activity} iconColor="text-purple-600" className="bg-purple-50 border-purple-200">
             <div className="space-y-4">
               {/* Trends */}
               {trends && (
-                <div className="bg-white rounded-lg p-4 border border-purple-200">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                      <Search className="w-4 h-4 text-purple-600" />
-                      Google Trends: {trends.country}
-                    </h4>
-                    <span className={`px-2 py-1 rounded font-bold text-sm ${
-                      trends.overallTemperature < 40 ? 'bg-green-100 text-green-700' :
-                      trends.overallTemperature < 70 ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {trends.overallTemperature}/100
-                    </span>
-                  </div>
-                  <div className="space-y-1">
-                    {trends.interpretation.map((line, i) => (
-                      <p key={i} className="text-sm text-slate-600">{line}</p>
-                    ))}
-                  </div>
-                </div>
+                <TrendsCard trends={trends} />
               )}
 
               {/* Op-Eds / Hegemonic Analysis */}
               {opEds && (
-                <div className="bg-white rounded-lg p-4 border border-rose-200">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                      <Users className="w-4 h-4 text-rose-600" />
-                      Hegemonic Analysis
-                    </h4>
-                    <span className="text-sm text-slate-500">{opEds.totalArticles} articles</span>
-                  </div>
-                  {opEds.nixonMoments && opEds.nixonMoments.length > 0 && (
-                    <div className="mb-3 p-3 bg-amber-50 rounded border border-amber-200">
-                      <div className="text-sm font-medium text-amber-800 mb-2">Nixon-to-China Moments (High Signal)</div>
-                      {opEds.nixonMoments.slice(0, 3).map((article, i) => (
-                        <div key={i} className="text-sm text-amber-700 mb-1">
-                          <span className="font-medium">{article.source.name}:</span> {article.title}
-                          {article.nixonType && <span className="text-xs ml-2 text-amber-600">({article.nixonType})</span>}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <div className="space-y-1">
-                    {opEds.interpretation.map((line, i) => (
-                      <p key={i} className="text-sm text-slate-600">{line}</p>
-                    ))}
-                  </div>
-                </div>
+                <OpEdCard opEds={opEds} />
               )}
 
               {/* Elite Signals */}
               {eliteSignals && (
-                <div className="bg-white rounded-lg p-4 border border-amber-200">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-amber-600" />
-                      Elite Signals (GOP Coordination)
-                    </h4>
-                    <div className="flex gap-2">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        eliteSignals.defections.coordinationScore > 70 ? 'bg-red-100 text-red-700' :
-                        eliteSignals.defections.coordinationScore > 40 ? 'bg-amber-100 text-amber-700' :
-                        'bg-slate-100 text-slate-700'
-                      }`}>
-                        Regime Cohesion: {eliteSignals.defections.coordinationScore}
-                      </span>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        eliteSignals.propaganda.effectivenessScore > 70 ? 'bg-red-100 text-red-700' :
-                        eliteSignals.propaganda.effectivenessScore > 40 ? 'bg-amber-100 text-amber-700' :
-                        'bg-slate-100 text-slate-700'
-                      }`}>
-                        Propaganda Effect: {eliteSignals.propaganda.effectivenessScore}
-                      </span>
-                    </div>
-                  </div>
-                  {eliteSignals.defections.articles.length > 0 && (
-                    <div className="mb-3">
-                      <div className="text-sm font-medium text-slate-600 mb-2">Notable Defections:</div>
-                      {eliteSignals.defections.articles.slice(0, 3).map((article, i) => (
-                        <div key={i} className="text-sm text-slate-700 mb-1 p-2 bg-slate-50 rounded">
-                          <span className="font-medium">{article.figure}</span> ({article.figureRole}): {article.description}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <div className="space-y-1">
-                    {eliteSignals.interpretation.map((line, i) => (
-                      <p key={i} className="text-sm text-slate-600">{line}</p>
-                    ))}
-                  </div>
-                </div>
+                <EliteSignalsCard
+                  eliteSignals={eliteSignals}
+                />
               )}
 
               {/* Bluesky */}
               {bluesky && (
-                <div className="bg-white rounded-lg p-4 border border-blue-200">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                      <Radio className="w-4 h-4 text-blue-600" />
-                      Bluesky Discourse
-                    </h4>
-                    <span className={`px-2 py-1 rounded font-bold text-sm ${
-                      bluesky.temperature < 40 ? 'bg-green-100 text-green-700' :
-                      bluesky.temperature < 70 ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {bluesky.temperature}/100
-                    </span>
-                  </div>
-                  <div className="flex gap-4 mb-3 text-sm">
-                    <span className="text-slate-700"><span className="font-medium">Critical:</span> {bluesky.sentimentBreakdown.negative}</span>
-                    <span className="text-slate-500"><span className="font-medium">Mixed:</span> {bluesky.sentimentBreakdown.neutral}</span>
-                    <span className="text-slate-700"><span className="font-medium">Supportive:</span> {bluesky.sentimentBreakdown.positive}</span>
-                  </div>
-                  <div className="space-y-1">
-                    {bluesky.interpretation.map((line, i) => (
-                      <p key={i} className="text-sm text-slate-600">{line}</p>
-                    ))}
-                  </div>
-                </div>
+                <BlueskyCard bluesky={bluesky} />
               )}
 
               {/* Market Signals */}
               {marketSignals && (
-                <div className="bg-white rounded-lg p-4 border border-emerald-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <h4 className="font-bold text-slate-800">Market Signals</h4>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      marketSignals.overallAssessment.consolidationImplication === 'markets_constraining' ? 'bg-green-100 text-green-700' :
-                      marketSignals.overallAssessment.consolidationImplication === 'markets_enabling' ? 'bg-red-100 text-red-700' :
-                      'bg-yellow-100 text-yellow-700'
-                    }`}>
-                      {marketSignals.overallAssessment.marketConstraintLevel}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 mb-3 text-sm">
-                    <div className="p-2 bg-slate-50 rounded">
-                      <div className="text-slate-500">S&P 500</div>
-                      <div className="font-bold">{marketSignals.marketConditions.sp500.level.toLocaleString()}</div>
-                      <div className={marketSignals.marketConditions.sp500.weekChange >= 0 ? 'text-green-600' : 'text-red-600'}>
-                        {marketSignals.marketConditions.sp500.weekChange >= 0 ? '+' : ''}{marketSignals.marketConditions.sp500.weekChange.toFixed(1)}%
-                      </div>
-                    </div>
-                    <div className="p-2 bg-slate-50 rounded">
-                      <div className="text-slate-500">10Y Treasury</div>
-                      <div className="font-bold">{marketSignals.marketConditions.treasury10y.yield.toFixed(2)}%</div>
-                      <div className="text-slate-600">{marketSignals.marketConditions.treasury10y.trend}</div>
-                    </div>
-                    <div className="p-2 bg-slate-50 rounded">
-                      <div className="text-slate-500">VIX</div>
-                      <div className="font-bold">{marketSignals.marketConditions.vix.level}</div>
-                      <div className="text-slate-600">{marketSignals.marketConditions.vix.interpretation}</div>
-                    </div>
-                  </div>
-                  {marketSignals.tacoPatternAnalysis && (
-                    <div className={`p-3 rounded mb-3 ${marketSignals.tacoPatternAnalysis.patternHolding ? 'bg-green-50 border border-green-200' : 'bg-amber-50 border border-amber-200'}`}>
-                      <div className="text-sm font-medium mb-1">
-                        TACO Pattern (Tariff Announced, Chaos Observed): {marketSignals.tacoPatternAnalysis.instancesLast90Days} instances
-                      </div>
-                      <div className="text-sm text-slate-600">{marketSignals.tacoPatternAnalysis.summary}</div>
-                    </div>
-                  )}
-                  <p className="text-sm text-slate-700">{marketSignals.overallAssessment.summary}</p>
-                </div>
+                <MarketSignalsCard
+                  marketSignals={marketSignals}
+                />
               )}
             </div>
-          </div>
+          </Card>
         )}
 
         {/* Theoretical Model Scores & Diagnoses */}
@@ -600,13 +247,6 @@ export default function ResultsPage() {
             return diagnoses[modelId];
           };
 
-          const clusterColor: Record<string, string> = {
-            'institutionalist': 'bg-blue-100 text-blue-700',
-            'class-economic': 'bg-purple-100 text-purple-700',
-            'cultural-social': 'bg-pink-100 text-pink-700',
-            'elite-strategic': 'bg-cyan-100 text-cyan-700',
-            'process-dynamic': 'bg-orange-100 text-orange-700'
-          };
           const clusterLabels: Record<string, string> = {
             'institutionalist': 'Institutionalist',
             'class-economic': 'Class/Economic',
@@ -623,11 +263,14 @@ export default function ResultsPage() {
           };
 
           return (
-            <div className="bg-slate-50 rounded-xl p-6 mb-8 border border-slate-200">
-              <div className="flex items-center gap-2 mb-2">
-                <BookOpen className="w-5 h-5 text-slate-700" />
-                <h2 className="text-xl font-bold text-slate-800">Theoretical Model Assessment</h2>
-              </div>
+            <Card
+              variant='section'
+              className="bg-slate-50 border-slate-200"
+              title="Theoretical Model Assessment"
+              icon={BookOpen}
+              iconColor='text-slate-700'
+              headerContent={<span className="text-sm text-slate-500">({displayResults.modelsUsed.length} models)</span>}
+            >
               <p className="text-sm text-slate-500 mb-4">
                 Each model applies its own theoretical weights to the shared factor scores, producing different risk assessments.
                 Models flagged as outliers deviate &gt;1 standard deviation from the mean ({meanScore.toFixed(1)}).
@@ -639,11 +282,9 @@ export default function ResultsPage() {
                   <div className="text-sm font-semibold text-amber-800 mb-1">Outlier Models</div>
                   <div className="text-xs text-amber-700 flex flex-wrap gap-2 mt-1">
                     {scored.filter(m => m.isOutlier).map(m => (
-                      <span key={m.id} className={`px-2 py-0.5 rounded ${
-                        m.direction === 'high' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                      }`}>
+                      <Pill key={m.id} tone={m.direction === 'high' ? 'red' : 'green'} variant="soft">
                         {m.name}: {m.score.toFixed(1)} ({m.deviation > 0 ? '+' : ''}{m.deviation.toFixed(1)})
-                      </span>
+                      </Pill>
                     ))}
                   </div>
                 </div>
@@ -669,21 +310,25 @@ export default function ResultsPage() {
                       <div className="flex justify-between items-center mb-2">
                         <div className="flex items-center gap-2 flex-wrap">
                           {model.isOutlier && (
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${
-                              model.direction === 'high' ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'
-                            }`}>
+                            <Pill tone={model.direction === 'high' ? 'red' : 'green'} variant="strong" className="font-bold">
                               OUTLIER {model.direction === 'high' ? '↑' : '↓'}
-                            </span>
+                            </Pill>
                           )}
-                          {!model.isOutlier && isHighest && <span className="text-xs font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded">MOST CONCERN</span>}
-                          {!model.isOutlier && isLowest && <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded">LEAST CONCERN</span>}
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${clusterColor[model.cluster] || 'bg-slate-100 text-slate-600'}`}>
+                          {!model.isOutlier && isHighest && <Pill tone="red" variant="soft" className="font-bold">MOST CONCERN</Pill>}
+                          {!model.isOutlier && isLowest && <Pill tone="green" variant="soft" className="font-bold">LEAST CONCERN</Pill>}
+                          <Pill tone={
+                            model.cluster === 'institutionalist' ? 'blue' :
+                            model.cluster === 'class-economic' ? 'purple' :
+                            model.cluster === 'cultural-social' ? 'pink' :
+                            model.cluster === 'elite-strategic' ? 'cyan' :
+                            model.cluster === 'process-dynamic' ? 'orange' : 'slate'
+                          } variant="soft">
                             {clusterLabels[model.cluster] || model.cluster}
-                          </span>
+                          </Pill>
                           <span className="font-semibold text-slate-800">{model.name}</span>
                           <span className="text-xs text-slate-500">({model.author})</span>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-2 shrink-0">
                           <span className={`text-sm font-medium ${risk.textColor}`}>{risk.level}</span>
                           <span className="font-bold text-slate-800 text-lg">{model.score.toFixed(1)}</span>
                         </div>
@@ -722,14 +367,13 @@ export default function ResultsPage() {
                   </p>
                 )}
               </div>
-            </div>
+            </Card>
           );
         })()}
 
         {/* Factor Breakdown with Evidence */}
         {Object.keys(displayResults.factorResults).length > 0 && (
-          <div className="bg-white rounded-xl p-6 mb-8 border border-slate-200">
-            <h2 className="text-xl font-bold text-slate-800 mb-4">Factor Analysis</h2>
+          <Card variant="section" title="Factor Analysis" className="bg-white border-slate-200">
             <div className="space-y-4">
               {factors.map(factor => {
                 const data = displayResults.factorResults[factor.id];
@@ -761,16 +405,18 @@ export default function ResultsPage() {
                 );
               })}
             </div>
-          </div>
+          </Card>
         )}
 
         {/* Historical Comparison */}
         {displayResults.historicalComparison && (
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 mb-8 border border-amber-200">
-            <div className="flex items-center gap-2 mb-4">
-              <BookOpen className="w-5 h-5 text-amber-700" />
-              <h2 className="text-xl font-bold text-slate-800">Historical Comparison</h2>
-            </div>
+          <Card
+            variant='section'
+            title='Historical Comparison'
+            icon={BookOpen}
+            iconColor='text-amber-700'
+            className='bg-amber-50 border-amber-200'
+          >
             <details className="mb-4 bg-white/60 rounded-lg border border-amber-100">
               <summary className="p-3 text-sm font-medium text-slate-700 cursor-pointer hover:text-slate-900">How does this comparison work?</summary>
               <div className="px-3 pb-3 text-sm text-slate-600 space-y-2">
@@ -778,14 +424,7 @@ export default function ResultsPage() {
                 <p><strong>Cases:</strong> 25+ regime transitions including Weimar Germany, Fascist Italy, Chile, Hungary, Turkey, Venezuela, plus resistance cases.</p>
               </div>
             </details>
-            <div className={`p-4 rounded-lg mb-4 ${displayResults.historicalComparison.averageScore >= 60 ? 'bg-red-100 border border-red-300' : displayResults.historicalComparison.averageScore >= 40 ? 'bg-amber-100 border border-amber-300' : 'bg-green-100 border border-green-300'}`}>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-700">Comparative Prediction</span>
-                <span className={`text-2xl font-bold ${displayResults.historicalComparison.averageScore >= 60 ? 'text-red-700' : displayResults.historicalComparison.averageScore >= 40 ? 'text-amber-700' : 'text-green-700'}`}>
-                  {displayResults.historicalComparison.averageScore}/100
-                </span>
-              </div>
-            </div>
+            <ConsensusBox score={displayResults.historicalComparison.averageScore} />
             <div className="mb-4">
               <h5 className="text-sm font-semibold text-slate-700 mb-2">Most Similar Historical Cases</h5>
               <div className="space-y-2">
@@ -795,9 +434,13 @@ export default function ResultsPage() {
                       <span className="font-medium text-slate-800">{c.country}</span>
                       <span className="text-slate-500 text-sm ml-2">{c.period}</span>
                     </div>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${c.outcome === 'consolidated' ? 'bg-red-200 text-red-800' : c.outcome === 'resisted' ? 'bg-green-200 text-green-800' : 'bg-blue-200 text-blue-800'}`}>
+                    <Pill
+                      tone={c.outcome === 'consolidated' ? 'red' : c.outcome === 'resisted' ? 'green' : 'blue'}
+                      variant="strong"
+                      size="sm"
+                    >
                       {c.outcome}
-                    </span>
+                    </Pill>
                   </div>
                 ))}
               </div>
@@ -809,7 +452,7 @@ export default function ResultsPage() {
                 </p>
               ))}
             </div>
-          </div>
+          </Card>
         )}
 
         {/* CTA to Live Tool */}
