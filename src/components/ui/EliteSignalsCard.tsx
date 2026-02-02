@@ -42,6 +42,18 @@ interface EliteSignalsCardProps {
 }
 
 export default function EliteSignalsCard({ eliteSignals, showDetails = false }: EliteSignalsCardProps) {
+  const coordinationTone =
+    eliteSignals.defections.coordinationScore > 70
+      ? 'red'
+      : eliteSignals.defections.coordinationScore > 40
+        ? 'yellow'
+        : 'slate';
+  const propagandaTone =
+    eliteSignals.propaganda.effectivenessScore > 70
+      ? 'red'
+      : eliteSignals.propaganda.effectivenessScore > 40
+        ? 'yellow'
+        : 'slate';
 
   if (showDetails) {
     return (
@@ -54,7 +66,7 @@ export default function EliteSignalsCard({ eliteSignals, showDetails = false }: 
           }`}>
             <div className="flex items-center gap-2 mb-2">
               <Users className="w-4 h-4 text-slate-600" />
-              <span className="font-medium text-sm">Party Coordination</span>
+              <span className="font-medium text-sm">Regime Cohesion</span>
             </div>
             <div className={`text-3xl font-bold ${
               eliteSignals.defections.coordinationScore < 50 ? 'text-red-600' :
@@ -134,11 +146,11 @@ export default function EliteSignalsCard({ eliteSignals, showDetails = false }: 
       iconColor="text-amber-600"
       headerContent={
         <>
-          <Pill tone="slate" size="xs">
-            Coordination: {eliteSignals.defections.coordinationScore}
+          <Pill tone={coordinationTone} size="xs">
+            Regime Cohesion: {eliteSignals.defections.coordinationScore}
           </Pill>
-          <Pill tone="slate" size="xs">
-            Propaganda: {eliteSignals.propaganda.effectivenessScore}
+          <Pill tone={propagandaTone} size="xs">
+            Propaganda Effectiveness: {eliteSignals.propaganda.effectivenessScore}
           </Pill>
         </>
       }
