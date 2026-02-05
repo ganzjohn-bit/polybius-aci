@@ -1,0 +1,49 @@
+import { Activity } from 'lucide-react';
+
+import type {
+  BlueskyData,
+  EliteSignalsData,
+  MarketSignalsData,
+  OpEdData,
+} from '@/types/results';
+
+import type {TrendsData } from '@/types/results';
+
+import TrendsCard from '@/components/ui/TrendsCard';
+import OpEdCard from '@/components/ui/OpEdCard';
+import EliteSignalsCard from '@/components/ui/EliteSignalsCard';
+import BlueskyCard from '@/components/ui/BlueskyCard';
+import MarketSignalsCard from '@/components/ui/MarketSignalsCard';
+import Card from '@/components/ui/Card';
+
+interface SocialSignalsPanelProps {
+  socialSignals?: {
+    trends: TrendsData | null;
+    opEds: OpEdData | null;
+    eliteSignals: EliteSignalsData | null;
+    bluesky: BlueskyData | null;
+    marketSignals: MarketSignalsData | null;
+  };
+}
+
+export default function SocialSignalsPanel({ socialSignals }: SocialSignalsPanelProps) {
+  const { trends, opEds, eliteSignals, bluesky, marketSignals } = socialSignals || {};
+
+  return (
+    <Card
+      variant="section"
+      className="bg-purple-50 border-purple-200"
+      title="Social Signals"
+      icon={Activity}
+      iconColor="text-purple-600"
+    >
+      <div className="space-y-4">
+        {trends && <TrendsCard trends={trends} />}
+        {opEds && <OpEdCard opEds={opEds} />}
+        {eliteSignals && <EliteSignalsCard eliteSignals={eliteSignals} />}
+        {bluesky && <BlueskyCard bluesky={bluesky} />}
+        {marketSignals && <MarketSignalsCard marketSignals={marketSignals} />}
+      </div>
+    </Card>
+  );
+}
