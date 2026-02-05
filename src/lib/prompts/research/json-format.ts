@@ -87,7 +87,7 @@ IMPORTANT: After completing your research, you MUST respond with ONLY the JSON b
       "majorDiscussions": ["podcast: topic discussed"],
       "regimeVsOpposition": "regime-dominated/balanced/opposition-dominated"
     },
-    "nixonToChinaMoments": ["any unexpected editorial alignments - regime outlet criticizing regime, or opposition praising"],
+    "nixonToChinaMoments": ["unexpected editorial alignments (regime outlet criticizing regime, opposition praising); SOFTLINER DEFECTIONS (GOP officials, donors, or business allies breaking with regime — key U-Turn signal)"],
     "cultureIndustryCapture": {
       "authoritarianDiscourseLevel": "subcultural/mainstreaming/normalized",
       "evidence": ["where authoritarian rhetoric appears"],
@@ -102,5 +102,5 @@ IMPORTANT: After completing your research, you MUST respond with ONLY the JSON b
     "svolik": "1-2 sentences: Are voters constraining the leader? Partisan tolerance of norm violations assessment.",
     "levitskyZiblatt": "1-2 sentences: Status of mutual toleration and institutional forbearance. Which guardrails are holding, which are eroding?"
   },
-  "summary": "2-3 paragraph analysis focused on THE NEWS and THE CONJUNCTURE. What is actually happening right now? What are the key events, conflicts, and developments this week? Then: what does this conjuncture (in Stuart Hall's sense — the specific historical moment where multiple forces and contradictions condense) mean for democratic stability? Write like an analyst briefing a reader on the situation, not like a methods section. Ground the analysis in concrete recent events. Do NOT discuss model methodology or divergence here — that belongs in modelDiagnoses. This summary should read like informed political analysis, not academic throat-clearing."
+  "summary": "2-3 paragraph analysis focused on THE NEWS and THE CONJUNCTURE. What is actually happening right now? What are the key events, conflicts, and developments this week? Note hardliner/softliner dynamics if relevant. Then: what does this conjuncture (in Stuart Hall's sense — the specific historical moment where multiple forces and contradictions condense) mean for democratic stability? Contextualize against U-Turn base rates (52-73% of autocratization episodes reverse) — which type of reversal (regime miscalculation, democratic reaction) seems most plausible given current dynamics? Write like an analyst briefing a reader on the situation, not like a methods section. Ground the analysis in concrete recent events. Do NOT discuss model methodology or divergence here — that belongs in modelDiagnoses. This summary should read like informed political analysis, not academic throat-clearing."
 }`;
