@@ -29,57 +29,6 @@ export interface TrendCategory {
   topKeyword: string | null;
 }
 
-export interface TrendsData {
-  country: string;
-  categoryAggregates: TrendCategory[];
-  overallTemperature: number;
-  interpretation: string[];
-  errors?: string[];
-}
-
-export interface OpEdArticle {
-  title: string;
-  description: string;
-  source: { name: string };
-  url: string;
-  sentiment: 'negative' | 'neutral' | 'positive';
-  outletClass: 'elite' | 'mainstream' | 'populist' | 'unknown';
-  outletAffinity: 'regime' | 'neutral' | 'opposition' | 'unknown';
-  signalWeight: number;
-  isNixonToChina: boolean;
-  nixonType?: string;
-}
-
-export interface MatrixCell {
-  count: number;
-  negative: number;
-  neutral: number;
-  positive: number;
-}
-
-export interface OpEdMatrix {
-  elite: { regime: MatrixCell; neutral: MatrixCell; opposition: MatrixCell };
-  mainstream: { regime: MatrixCell; neutral: MatrixCell; opposition: MatrixCell };
-  populist: { regime: MatrixCell; neutral: MatrixCell; opposition: MatrixCell };
-}
-
-export interface DerivedSignals {
-  eliteDefection: { score: number; evidence: string[] };
-  hegemnonicCrisis: { score: number; evidence: string[] };
-  classConflict: { score: number; evidence: string[] };
-  eliteCoordination: { score: number; evidence: string[] };
-  baseErosion: { score: number; evidence: string[] };
-}
-
-export interface OpEdData {
-  country: string;
-  totalArticles: number;
-  articles: OpEdArticle[];
-  matrix: OpEdMatrix;
-  derivedSignals: DerivedSignals;
-  nixonMoments: OpEdArticle[];
-  interpretation: string[];
-}
 
 export interface DefectionArticle {
   title: string;
@@ -92,29 +41,6 @@ export interface DefectionArticle {
   defectionType: string;
 }
 
-export interface PropagandaMetrics {
-  negativeStoriesTotal: number;
-  negativeInOpposition: number;
-  negativeInRegimeMedia: number;
-  penetrationRate: number;
-  echoEffect: number;
-  counterNarrativeCount: number;
-  blackoutScore: number;
-}
-
-export interface EliteSignalsData {
-  defections: {
-    articles: DefectionArticle[];
-    totalFound: number;
-    byFigure: { figure: string; role: string; count: number; maxSeverity: number }[];
-    coordinationScore: number;
-  };
-  propaganda: {
-    metrics: PropagandaMetrics;
-    effectivenessScore: number;
-  };
-  interpretation: string[];
-}
 
 export interface BlueskyPost {
   text: string;
@@ -135,59 +61,6 @@ export interface BlueskyData {
   topIndicators: { indicator: string; count: number }[];
   temperature: number;
   interpretation: string[];
-}
-
-export interface MarketConditions {
-  sp500: { level: number; weekChange: number; monthChange: number; trend: string };
-  treasury10y: { yield: number; weekChange: number; trend: string; elevated: boolean };
-  vix: { level: number; interpretation: string };
-  recentVolatility: string;
-}
-
-export interface PolicyMarketEvent {
-  date: string;
-  policy: string;
-  marketReaction: string;
-  magnitude: number;
-  followUp: string;
-  tacoPattern: boolean;
-}
-
-export interface ModelMarketInterpretation {
-  interpretation: string;
-  implication: string;
-  [key: string]: string;
-}
-
-export interface MarketSignalsData {
-  marketConditions: MarketConditions;
-  policyMarketEvents: PolicyMarketEvent[];
-  tacoPatternAnalysis: {
-    instancesLast90Days: number;
-    patternHolding: boolean;
-    marketDisciplineWorking: boolean;
-    summary: string;
-  };
-  businessSentiment: {
-    overall: string;
-    keyHeadlines: string[];
-    eliteAlignment: string;
-    notableStatements: string[];
-  };
-  modelInterpretations: {
-    marxian: ModelMarketInterpretation;
-    redistributive: ModelMarketInterpretation;
-    gramscian: ModelMarketInterpretation;
-    svolik: ModelMarketInterpretation;
-    classical: ModelMarketInterpretation;
-    paxton: ModelMarketInterpretation;
-  };
-  overallAssessment: {
-    marketConstraintLevel: string;
-    regimeResponsiveness: string;
-    consolidationImplication: string;
-    summary: string;
-  };
 }
 
 export interface CaseSimilarity {
@@ -249,18 +122,7 @@ export interface Factor {
   description: string;
 }
 
-export interface Scores {
-  judicial: number;
-  federalism: number;
-  political: number;
-  media: number;
-  civil: number;
-  publicOpinion: number;
-  mobilizationalBalance: number;
-  stateCapacity: number;
-  corporateCompliance: number;
-  electionInterference: number;
-}
+export type Scores = Record<string, number>
 
 export interface RiskLevel {
   level: string;

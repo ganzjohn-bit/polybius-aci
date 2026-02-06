@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import VitalSignsMonitor from './VitalSignsMonitor';
+import { Scores } from '@/types/calculator';
 
 const meta: Meta<typeof VitalSignsMonitor> = {
   title: 'UI/VitalSignsMonitor',
@@ -29,7 +30,7 @@ const mockFactors = [
   { id: 'electionInterference', name: 'Election Integrity', dangerThreshold: 50 },
 ];
 
-const mixedScores: Record<string, number> = {
+const mixedScores: Scores = {
   judicial: 45,
   federalism: 35,
   political: 70,

@@ -3,6 +3,7 @@
 import { Activity, Heart } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import VitalSignCard from '@/components/ui/VitalSignCard';
+import { Scores } from '@/types/calculator';
 
 interface VitalSignFactor {
   id: string;
@@ -12,7 +13,7 @@ interface VitalSignFactor {
 
 interface VitalSignsMonitorProps {
   factors: VitalSignFactor[];
-  scores: Record<string, number>;
+  scores: Scores;
   trends?: Record<string, string | undefined>;
   overallScore: number;
   showCriticalFactors?: boolean;
@@ -28,7 +29,7 @@ export default function VitalSignsMonitor({
   const statusLabel = overallScore < 40 ? 'STABLE' : overallScore < 60 ? 'ELEVATED' : 'CRITICAL';
   const statusColor = overallScore < 40 ? 'bg-green-500' : overallScore < 60 ? 'bg-yellow-500' : 'bg-red-500';
 
-  const criticalFactors = factors.filter(f => (scores[f.id] || 0) >= f.dangerThreshold);
+  const criticalFactors = factors.filter(f => (scores[f.id as keyof Scores] || 0) >= f.dangerThreshold);
 
   return (
     <Card
@@ -50,7 +51,7 @@ export default function VitalSignsMonitor({
     >
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {factors.map(factor => {
-          const score = scores[factor.id] || 0;
+          const score = scores[factor.id as keyof Scores] || 0;
           const trend = trends?.[factor.id];
 
           return (
