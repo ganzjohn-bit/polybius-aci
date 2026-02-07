@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# install dependencies
+npm install
+
+# Copy local env example
+cp .env.local.example .env.local
