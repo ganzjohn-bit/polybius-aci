@@ -11,7 +11,7 @@ import TrendsCard from '@/components/ui/TrendsCard';
 import { factors, theoreticalModels } from '@/data/constants';
 import { TrendsData, MarketSignalsData, OpEdData, EliteSignalsData } from '@/types/results';
 import { BlueskyData, ComparativeAnalysisData,  FactorResult,  ResearchResults, } from '@/types/calculator';
-import { Activity, BookOpen, Check, ChevronDown, ChevronUp, Info, Loader2, Minus, Search, Settings, Shield, TrendingDown, TrendingUp, X } from 'lucide-react';
+import { Activity, BookOpen, Check, ChevronDown, ChevronUp, Info, Loader2, Minus, Search, Settings, Shield, TrendingDown, TrendingUp, Upload, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function PolybiusCalculator() {
@@ -50,6 +50,8 @@ export default function PolybiusCalculator() {
   const [marketSignalsData, setMarketSignalsData] = useState<MarketSignalsData | null>(null);
   const [comparativeData, setComparativeData] = useState<ComparativeAnalysisData | null>(null);
   const [isFetchingComparative, setIsFetchingComparative] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [socialError, setSocialError] = useState('');
 
   const [activeModels, setActiveModels] = useState({
@@ -936,7 +938,104 @@ export default function PolybiusCalculator() {
         </Card>
 
         {/* Overall Score */}
+
         <OverallScoreCard aciScore={aciScore} risk={risk} probability={probability} />
+
+        {/* Publish to polybius.world */}
+        {hasNonZeroScores && (
+          <div className="mt-6 mb-6 py-4 flex flex-col items-center gap-2">
+              <button
+                onClick={async () => {
+                  setIsPublishing(true);
+                  setPublishStatus(null);
+
+                  const exportData = {
+                    generatedAt: new Date().toISOString(),
+                    country,
+                    aciScore,
+                    riskLevel: risk.level,
+                    scores,
+                    summary: researchResults?.summary || '',
+                    factorResults: researchResults ? Object.fromEntries(
+                      factors.map(f => {
+                        const result = researchResults[f.id as keyof typeof researchResults];
+                        if (result && typeof result === 'object' && 'score' in result) {
+                          return [f.id, {
+                            score: (result as { score: number; evidence: string; trend: string }).score,
+                            evidence: (result as { score: number; evidence: string; trend: string }).evidence,
+                            trend: (result as { score: number; evidence: string; trend: string }).trend
+                          }];
+                        }
+                        return [f.id, { score: scores[f.id as keyof typeof scores], evidence: '', trend: 'stable' }];
+                      })
+                    ) : {},
+                    historicalComparison: comparativeData ? {
+                      averageScore: comparativeData.consensus.averageScore,
+                      mostSimilarCases: comparativeData.mostCitedCases.slice(0, 3).map(c => ({
+                        country: c.country,
+                        period: c.period,
+                        outcome: c.outcome
+                      })),
+                      interpretation: comparativeData.interpretation
+                    } : null,
+                    socialSignals: {
+                      trends: trendsData || null,
+                      opEds: opEdData || null,
+                      eliteSignals: eliteSignalsData || null,
+                      bluesky: blueskyData || null,
+                      marketSignals: marketSignalsData || null
+                    },
+                    modelsUsed: theoreticalModels
+                      .filter(m => activeModels[m.id as keyof typeof activeModels])
+                      .map(m => ({
+                        id: m.id,
+                        name: m.name,
+                        author: m.author,
+                        cluster: m.cluster,
+                        shortDesc: m.shortDesc,
+                        fullDesc: m.fullDesc,
+                        keyWorks: m.keyWorks,
+                        weights: m.weights
+                      }))
+                  };
+
+                  try {
+                    const response = await fetch('/api/publish', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ results: exportData })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                      setPublishStatus({ type: 'success', message: 'Published! polybius.world will update in ~30 seconds.' });
+                    } else {
+                      setPublishStatus({ type: 'error', message: data.error || 'Publish failed' });
+                    }
+                  } catch (err) {
+                    setPublishStatus({ type: 'error', message: err instanceof Error ? err.message : 'Publish failed' });
+                  } finally {
+                    setIsPublishing(false);
+                  }
+                }}
+                disabled={isPublishing}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:bg-green-400 transition-colors flex items-center gap-2"
+              >
+                {isPublishing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4" />
+                )}
+                {isPublishing ? 'Publishing...' : 'Publish to polybius.world'}
+              </button>
+              {publishStatus && (
+                <div className={`text-sm ${publishStatus.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                  {publishStatus.message}
+                </div>
+              )}
+          </div>
+        )}
 
         {/* Model Stress Comparison */}
         {hasNonZeroScores && (
