@@ -3,6 +3,7 @@ import { cleanObjectStrings } from '@/lib/text-utils';
 import { findToolUseBlock, ApiResponse, ContentBlock } from '@/lib/prompt-utils';
 import { buildOpEdPrompt } from '@/lib/prompts/op-eds';
 import { OPED_ANALYSIS_TOOL } from '@/lib/prompts/op-eds/analysis-tool';
+import { opEdFixture } from '@/lib/fixtures/op-ed';
 
 // Outlet classification for interpreting results
 // TODO: use or remove
@@ -87,6 +88,12 @@ export async function POST(request: NextRequest) {
     const { apiKey } = body;
 
     console.log('Op-eds request received:', { hasApiKey: !!apiKey, apiKeyLength: apiKey?.length });
+
+    // If configured locally, short-circuit the request with a stubbed response.
+    if (process.env.LIVE_REQUESTS === 'false') {
+      console.log('[stub] Returning fixture data for op-eds');
+      return NextResponse.json(opEdFixture);
+    }
 
     if (!apiKey) {
       return NextResponse.json({ error: 'Anthropic API key required', received: Object.keys(body) }, { status: 400 });
