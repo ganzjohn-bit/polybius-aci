@@ -2,10 +2,24 @@
 
 # install dependencies
 echo "Installing dependencies..."
-npm install
+npm install --silent
+echo "    Dependencies installed."
 
 # Copy local env example
+echo "Checking for .env.local..."
 if [ ! -f .env.local ]; then
-  echo "Copying .env.local.example..."
+  echo "    Copying .env.local.example"
   cp .env.local.example .env.local
+else
+  echo "    Found .env.local, skipping."
 fi
+
+echo ""
+echo "Setup done."
+echo ""
+echo "Run the server locally with:"
+echo "    npm run dev"
+echo ""
+echo "AI queries are stubbed by default. To make live queries,"
+echo "run the server with the following:"
+echo "    LIVE_REQUESTS=true npm run dev"
