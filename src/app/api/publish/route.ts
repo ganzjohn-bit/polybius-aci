@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 
 export async function POST(request: NextRequest) {
+
+  // prevent the publishing of stubbed results to prod
+  if (process.env.LIVE_REQUESTS === 'false') {
+    return NextResponse.json(
+      { error: 'Publishing disabled when LIVE_REQUESTS is false' },
+      { status: 403 }
+    );
+  }
+
   try {
     const { results } = await request.json();
 
