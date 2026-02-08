@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cleanObjectStrings } from '@/lib/text-utils';
 import { buildLiveSearchPrompt, buildQuickSearchPrompt } from '@/lib/prompts/research';
+import { researchFixture } from '@/lib/fixtures/research';
 
 interface ContentBlock {
   type: string;
@@ -27,6 +28,12 @@ const LIVE_CACHE_MS = 15 * 60 * 1000;
 export async function POST(request: NextRequest) {
   try {
     const { country, apiKey, searchMode = 'quick' } = await request.json();
+
+    // If configured locally, short-circuit the request with a stubbed response.
+    if (process.env.LIVE_REQUESTS === 'false') {
+      console.log(`[stub] Returning fixture data for research (country: ${country}, mode: ${searchMode})`);
+      return NextResponse.json(researchFixture);
+    }
 
     if (!apiKey) {
       return NextResponse.json({ error: 'API key required' }, { status: 400 });
