@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cleanObjectStrings } from '@/lib/text-utils';
+import { findToolUseBlock, ApiResponse, ContentBlock } from '@/lib/prompt-utils';
+import { OPED_ANALYSIS_TOOL } from '@/lib/prompts/op-eds/analysis-tool';
+import { PROMPTS } from '@/lib/constants';
 
 // Outlet classification for interpreting results
 // TODO: use or remove
@@ -78,16 +81,6 @@ const OUTLET_PROFILES: Record<string, { class: string; affinity: string; type: s
   'hasanabi': { class: 'populist', affinity: 'opposition', type: 'youtube' },
 };
 
-interface ContentBlock {
-  type: string;
-  text?: string;
-}
-
-interface ApiResponse {
-  content: ContentBlock[];
-  stop_reason: string;
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -160,102 +153,77 @@ For each piece of content found, identify:
 - Sentiment toward current regime (critical/neutral/supportive)
 - Any authoritarian rhetoric (dehumanization, scapegoating, enemy language)
 
-RESPOND WITH ONLY THIS JSON (follow this format exactly):
-{
-  "country": "United States",
-  "totalArticles": 0,
-  "articles": [
-    {
-      "title": "headline/title text",
-      "description": "brief summary of position",
-      "source": {"name": "outlet name"},
-      "sentiment": "negative/neutral/positive",
-      "outletClass": "elite/mainstream/populist",
-      "outletAffinity": "regime/neutral/opposition",
-      "signalWeight": 1.0,
-      "isNixonToChina": false,
-      "nixonType": null
-    }
-  ],
-  "matrix": {
-    "elite": {
-      "regime": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "neutral": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "opposition": {"count": 0, "negative": 0, "neutral": 0, "positive": 0}
-    },
-    "mainstream": {
-      "regime": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "neutral": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "opposition": {"count": 0, "negative": 0, "neutral": 0, "positive": 0}
-    },
-    "populist": {
-      "regime": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "neutral": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "opposition": {"count": 0, "negative": 0, "neutral": 0, "positive": 0}
-    }
-  },
-  "derivedSignals": {
-    "eliteDefection": {"score": 0, "evidence": ["evidence string"]},
-    "hegemnonicCrisis": {"score": 0, "evidence": ["evidence string"]},
-    "classConflict": {"score": 0, "evidence": ["evidence string"]},
-    "eliteCoordination": {"score": 0, "evidence": ["evidence string"]},
-    "baseErosion": {"score": 0, "evidence": ["evidence string"]}
-  },
-  "nixonMoments": [
-    {
-      "title": "",
-      "description": "",
-      "source": {"name": ""},
-      "sentiment": "negative/neutral/positive",
-      "outletClass": "elite/mainstream/populist",
-      "outletAffinity": "regime/neutral/opposition",
-      "signalWeight": 3.0,
-      "isNixonToChina": true,
-      "nixonType": "description of unexpected alignment"
-    }
-  ],
-  "interpretation": ["signal 1", "signal 2", "signal 3"]
-}
+After completing your research, call the ${OPED_ANALYSIS_TOOL.name} tool with your results.
 
 IMPORTANT:
 - For "Nixon to China" moments: regime-aligned outlets criticizing regime = HIGH SIGNAL, opposition outlets praising regime = HIGH SIGNAL
 - signalWeight: normal=1.0, Nixon-to-China moments=2.5-3.0
 - Count negative/neutral/positive in the matrix cells based on article sentiments found`;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8000,
-        temperature: 0,
-        tools: [{
-          type: "web_search_20250305",
-          name: "web_search"
-        }],
-        messages: [{
-          role: 'user',
-          content: prompt
-        }]
-      })
-    });
+    console.info('Analyzing op-eds...');
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API error:', errorText);
-      return NextResponse.json(
-        { error: `Anthropic API error: ${response.status}`, details: errorText },
-        { status: response.status }
-      );
+    const MAX_TURNS = 5;
+    const messages: Array<{role: string; content: string | ContentBlock[]}> = [{
+      role: 'user',
+      content: prompt
+    }];
+
+    let data!: ApiResponse;
+
+    for (let turn = 0; turn < MAX_TURNS; turn++) {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 16000,
+          temperature: 0,
+          tools: [
+            { type: "web_search_20250305", name: "web_search" },
+            OPED_ANALYSIS_TOOL
+          ],
+          messages
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API error:', errorText);
+        return NextResponse.json(
+          { error: `Anthropic API error: ${response.status}`, details: errorText },
+          { status: response.status }
+        );
+      }
+
+      data = await response.json();
+
+      console.info(`Turn ${turn + 1}: stop_reason is ${data.stop_reason}`);
+
+      // Check if the analysis tool was called
+      const toolUseBlock = findToolUseBlock(data, OPED_ANALYSIS_TOOL.name);
+      if (toolUseBlock?.input) {
+        console.info('Analysis tool response found. Op-ed analysis complete.');
+        return NextResponse.json(cleanObjectStrings(toolUseBlock.input));
+      }
+
+      // If paused (e.g. hit server tool use limit for this turn), continue
+      if (data.stop_reason === 'pause_turn') {
+        messages.push({ role: 'assistant', content: data.content });
+        messages.push({ role: 'user', content: 'Continue your analysis.' });
+        continue;
+      }
+
+      // end_turn, max_tokens, or other — stop looping
+      break;
     }
 
-    const data: ApiResponse = await response.json();
+    console.info('No analysis tool response found. Attempting to extract JSON from text...');
 
-    // Extract text content
+    // Fallback: extract JSON from text blocks
     const textBlocks = data.content.filter((item) => item.type === 'text' && item.text);
 
     if (textBlocks.length === 0) {
@@ -268,7 +236,6 @@ IMPORTANT:
     let text = textBlocks.map((item) => item.text).join('\n');
     text = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
 
-    // Find JSON
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       return NextResponse.json({
@@ -279,6 +246,7 @@ IMPORTANT:
 
     try {
       const results = JSON.parse(jsonMatch[0]);
+      console.info('JSON extraction successful. Op-ed analysis complete.');
       return NextResponse.json(cleanObjectStrings(results));
     } catch (parseError) {
       return NextResponse.json({
