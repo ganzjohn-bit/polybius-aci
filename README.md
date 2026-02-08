@@ -1,8 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Getting Started
 
-First, run the development server:
+Run `bin/setup` to install packages and create a `.env.local`.
+
+Then run the development server:
 
 ```bash
 npm run dev
@@ -14,11 +14,19 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+You can then access the app pages:
+- [http://localhost:3000](http://localhost:3000) will take you the app page where you can run queries.
+- [http://localhost:3000/results](http://localhost:3000/results) will take you to the view for published results.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Running Queries
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+By default, research queries are stubbed, to spare the dev the time and costs of making queries to the Claude API.
+
+If you want to run real queries, either edit the `LIVE_REQUESTS` variable in `.env.local` to `true`, or run the dev server like so:
+
+```
+LIVE_REQUESTS=true npm run dev
+```
 
 ## Learn More
 
