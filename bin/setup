@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
 # install dependencies
+echo "Installing dependencies..."
 npm install
 
 # Copy local env example
-cp .env.local.example .env.local
+if [ ! -f .env.local ]; then
+  echo "Copying .env.local.example..."
+  cp .env.local.example .env.local
+fi
