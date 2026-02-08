@@ -202,7 +202,14 @@ Respond with ONLY this JSON:
     }
 
     const results = JSON.parse(jsonMatch[0]);
-    return NextResponse.json(cleanObjectStrings(results));
+    const cleanedResults = cleanObjectStrings(results) as Record<string, unknown>;
+    return NextResponse.json({
+      ...cleanedResults,
+      _usage: data.usage ? {
+        input_tokens: data.usage.input_tokens,
+        output_tokens: data.usage.output_tokens
+      } : null
+    });
 
   } catch (error) {
     console.error('Market signals error:', error);

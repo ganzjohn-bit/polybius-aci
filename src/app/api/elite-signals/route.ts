@@ -10,6 +10,10 @@ interface ContentBlock {
 interface ApiResponse {
   content: ContentBlock[];
   stop_reason: string;
+  usage?: {
+    input_tokens: number;
+    output_tokens: number;
+  };
 }
 
 export async function POST(request: NextRequest) {
@@ -88,7 +92,14 @@ export async function POST(request: NextRequest) {
 
     try {
       const results = JSON.parse(jsonMatch[0]);
-      return NextResponse.json(cleanObjectStrings(results));
+      const cleanedResults = cleanObjectStrings(results) as Record<string, unknown>;
+      return NextResponse.json({
+        ...cleanedResults,
+        _usage: data.usage ? {
+          input_tokens: data.usage.input_tokens,
+          output_tokens: data.usage.output_tokens
+        } : null
+      });
     } catch (parseError) {
       return NextResponse.json({
         error: 'JSON parse error',
