@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cleanObjectStrings } from '@/lib/text-utils';
+import { findToolUseBlock, ApiResponse, ContentBlock } from '@/lib/prompt-utils';
+import { buildOpEdPrompt } from '@/lib/prompts/op-eds';
+import { OPED_ANALYSIS_TOOL } from '@/lib/prompts/op-eds/analysis-tool';
+import { opEdFixture } from '@/lib/fixtures/op-ed';
 
 // Outlet classification for interpreting results
 // TODO: use or remove
@@ -78,16 +82,6 @@ const OUTLET_PROFILES: Record<string, { class: string; affinity: string; type: s
   'hasanabi': { class: 'populist', affinity: 'opposition', type: 'youtube' },
 };
 
-interface ContentBlock {
-  type: string;
-  text?: string;
-}
-
-interface ApiResponse {
-  content: ContentBlock[];
-  stop_reason: string;
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -95,167 +89,82 @@ export async function POST(request: NextRequest) {
 
     console.log('Op-eds request received:', { hasApiKey: !!apiKey, apiKeyLength: apiKey?.length });
 
+    // If configured locally, short-circuit the request with a stubbed response.
+    if (process.env.LIVE_REQUESTS === 'false') {
+      console.log('[stub] Returning fixture data for op-eds');
+      return NextResponse.json(opEdFixture);
+    }
+
     if (!apiKey) {
       return NextResponse.json({ error: 'Anthropic API key required', received: Object.keys(body) }, { status: 400 });
     }
 
-    const currentDate = new Date().toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    const prompt = buildOpEdPrompt();
 
-    const prompt = `TODAY'S DATE: ${currentDate}
+    console.info('Analyzing op-eds...');
 
-You are a media analyst tracking editorial positions across the US media landscape. Search for RECENT (last 48-72 hours) op-eds, editorials, and commentary on current political events.
+    const MAX_TURNS = 5;
+    const messages: Array<{role: string; content: string | ContentBlock[]}> = [{
+      role: 'user',
+      content: prompt
+    }];
 
-SEARCH FOR CONTENT FROM THESE SOURCES (execute multiple searches):
+    let data!: ApiResponse;
 
-1. ELITE OUTLETS - Search: "New York Times editorial" OR "Washington Post opinion" OR "Wall Street Journal editorial" OR "The Atlantic" OR "The Economist" OR "Foreign Affairs"
+    for (let turn = 0; turn < MAX_TURNS; turn++) {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 16000,
+          temperature: 0,
+          tools: [
+            { type: "web_search_20250305", name: "web_search" },
+            OPED_ANALYSIS_TOOL
+          ],
+          messages
+        })
+      });
 
-2. MAINSTREAM OUTLETS - Search: "Fox News opinion" OR "CNN analysis" OR "MSNBC" OR "Politico" OR "Axios"
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API error:', errorText);
+        return NextResponse.json(
+          { error: `Anthropic API error: ${response.status}`, details: errorText },
+          { status: response.status }
+        );
+      }
 
-3. POPULIST OUTLETS - Search: "Breitbart" OR "Daily Wire" OR "HuffPost" OR "Vox" OR "The Intercept" OR "Jacobin"
+      data = await response.json();
 
-4. KEY SUBSTACKS (HIGH PRIORITY - these shape elite opinion):
-   - Search: "Heather Cox Richardson" (opposition historian, massive reach)
-   - Search: "Bari Weiss Free Press" (center-right contrarian)
-   - Search: "Matt Yglesias Slow Boring" (center-left wonk)
-   - Search: "The Bulwark" (anti-Trump conservative)
-   - Search: "Matt Taibbi" (populist left-turned-right)
-   - Search: "Glenn Greenwald" (civil libertarian contrarian)
-   - Search: "Andrew Sullivan" (center-right)
-   - Search: "Yascha Mounk Persuasion" (democracy scholar)
-   - Search: "Noah Smith Noahpinion" (economics/policy)
-   - Search: "Zeynep Tufekci" (tech/society)
+      console.info(`Turn ${turn + 1}: stop_reason is ${data.stop_reason}`);
 
-5. MAJOR PODCASTS (HIGH PRIORITY - massive audience reach):
-   - Search: "Joe Rogan Experience" Trump OR politics (largest podcast)
-   - Search: "Tucker Carlson" show OR interview (right populist)
-   - Search: "Ben Shapiro Daily Wire" (conservative)
-   - Search: "Pod Save America" (liberal)
-   - Search: "All-In podcast" Sacks Calacanis (tech elite)
-   - Search: "Lex Fridman" politics (tech/intellectual)
-   - Search: "Breaking Points" Krystal Saagar (populist cross-partisan)
-   - Search: "Megyn Kelly" show (center-right)
-   - Search: "Dan Bongino" (MAGA media)
-   - Search: "The Daily" New York Times (elite liberal)
-   - Search: "Ezra Klein Show" (intellectual left)
+      // Check if the analysis tool was called
+      const toolUseBlock = findToolUseBlock(data, OPED_ANALYSIS_TOOL.name);
+      if (toolUseBlock?.input) {
+        console.info('Analysis tool response found. Op-ed analysis complete.');
+        return NextResponse.json(cleanObjectStrings(toolUseBlock.input));
+      }
 
-6. YOUTUBE/VIDEO COMMENTATORS:
-   - Search: "Tim Pool" politics
-   - Search: "Steven Crowder"
-   - Search: "Destiny streamer" politics
-   - Search: "Hasan Piker" politics
+      // If paused (e.g. hit server tool use limit for this turn), continue
+      if (data.stop_reason === 'pause_turn') {
+        messages.push({ role: 'assistant', content: data.content });
+        messages.push({ role: 'user', content: 'Continue your analysis.' });
+        continue;
+      }
 
-7. NIXON-TO-CHINA MOMENTS (HIGHEST SIGNAL):
-   Search for regime-friendly outlets (WSJ, Fox, Daily Wire, Breitbart) criticizing Trump
-   Search for opposition outlets (NYT, WaPo, MSNBC) praising Trump policies
-   These unexpected alignments indicate shifting coalitions.
-
-For each piece of content found, identify:
-- Source outlet
-- Headline/title
-- Key argument or position
-- Sentiment toward current regime (critical/neutral/supportive)
-- Any authoritarian rhetoric (dehumanization, scapegoating, enemy language)
-
-RESPOND WITH ONLY THIS JSON (follow this format exactly):
-{
-  "country": "United States",
-  "totalArticles": 0,
-  "articles": [
-    {
-      "title": "headline/title text",
-      "description": "brief summary of position",
-      "source": {"name": "outlet name"},
-      "sentiment": "negative/neutral/positive",
-      "outletClass": "elite/mainstream/populist",
-      "outletAffinity": "regime/neutral/opposition",
-      "signalWeight": 1.0,
-      "isNixonToChina": false,
-      "nixonType": null
-    }
-  ],
-  "matrix": {
-    "elite": {
-      "regime": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "neutral": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "opposition": {"count": 0, "negative": 0, "neutral": 0, "positive": 0}
-    },
-    "mainstream": {
-      "regime": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "neutral": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "opposition": {"count": 0, "negative": 0, "neutral": 0, "positive": 0}
-    },
-    "populist": {
-      "regime": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "neutral": {"count": 0, "negative": 0, "neutral": 0, "positive": 0},
-      "opposition": {"count": 0, "negative": 0, "neutral": 0, "positive": 0}
-    }
-  },
-  "derivedSignals": {
-    "eliteDefection": {"score": 0, "evidence": ["evidence string"]},
-    "hegemnonicCrisis": {"score": 0, "evidence": ["evidence string"]},
-    "classConflict": {"score": 0, "evidence": ["evidence string"]},
-    "eliteCoordination": {"score": 0, "evidence": ["evidence string"]},
-    "baseErosion": {"score": 0, "evidence": ["evidence string"]}
-  },
-  "nixonMoments": [
-    {
-      "title": "",
-      "description": "",
-      "source": {"name": ""},
-      "sentiment": "negative/neutral/positive",
-      "outletClass": "elite/mainstream/populist",
-      "outletAffinity": "regime/neutral/opposition",
-      "signalWeight": 3.0,
-      "isNixonToChina": true,
-      "nixonType": "description of unexpected alignment"
-    }
-  ],
-  "interpretation": ["signal 1", "signal 2", "signal 3"]
-}
-
-IMPORTANT:
-- For "Nixon to China" moments: regime-aligned outlets criticizing regime = HIGH SIGNAL, opposition outlets praising regime = HIGH SIGNAL
-- signalWeight: normal=1.0, Nixon-to-China moments=2.5-3.0
-- Count negative/neutral/positive in the matrix cells based on article sentiments found`;
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8000,
-        temperature: 0,
-        tools: [{
-          type: "web_search_20250305",
-          name: "web_search"
-        }],
-        messages: [{
-          role: 'user',
-          content: prompt
-        }]
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API error:', errorText);
-      return NextResponse.json(
-        { error: `Anthropic API error: ${response.status}`, details: errorText },
-        { status: response.status }
-      );
+      // end_turn, max_tokens, or other — stop looping
+      break;
     }
 
-    const data: ApiResponse = await response.json();
+    console.info('No analysis tool response found. Attempting to extract JSON from text...');
 
-    // Extract text content
+    // Fallback: extract JSON from text blocks
     const textBlocks = data.content.filter((item) => item.type === 'text' && item.text);
 
     if (textBlocks.length === 0) {
@@ -268,7 +177,6 @@ IMPORTANT:
     let text = textBlocks.map((item) => item.text).join('\n');
     text = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
 
-    // Find JSON
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       return NextResponse.json({
@@ -279,6 +187,7 @@ IMPORTANT:
 
     try {
       const results = JSON.parse(jsonMatch[0]);
+      console.info('JSON extraction successful. Op-ed analysis complete.');
       return NextResponse.json(cleanObjectStrings(results));
     } catch (parseError) {
       return NextResponse.json({
