@@ -53,13 +53,13 @@ IMPORTANT: After completing your research, you MUST respond with ONLY the JSON b
       },
       "keyFindings": ["finding 1", "finding 2"],
       "theoreticalImplications": {
-        "marxian": "what capital vs labor split means",
-        "redistributive": "what elite-mass gap means",
-        "gramscian": "hegemony status: [full contestation/partial hegemony/near-hegemony]. Caesarism assessment: [is this Caesarist? high risk but low durability? or genuine hegemonic consolidation?]"
+        "classAnalysis": "what the business owners vs workers split means for regime coalition",
+        "eliteMassAnalysis": "what the gap between elites and ordinary people means",
+        "culturalControl": "can the regime win genuine buy-in across society, or is it stuck with its base while everyone else resists?"
       }
     }
   },
-  "mobilizationalBalance": {"score": 0, "evidence": "Union density X.X%. Key opposition orgs and recent mobilizations. Key regime orgs. Digital ecosystem balance (regime vs opposition platforms). Information hegemony: contested/partial/dominant.", "trend": "stable", "sources": "sources"},
+  "mobilizationalBalance": {"score": 0, "evidence": "Union density X.X%. Key opposition orgs and recent mobilizations. Key regime orgs. Digital ecosystem balance (regime vs opposition platforms). Media environment: contested/regime-leaning/regime-dominated.", "trend": "stable", "sources": "sources"},
   "stateCapacity": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
   "corporateCompliance": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
   "electionInterference": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
@@ -96,11 +96,11 @@ IMPORTANT: After completing your research, you MUST respond with ONLY the JSON b
     }
   },
   "modelDiagnoses": {
-    "gramscian": "1-2 sentences: Is this Caesarism (hegemonic deadlock → personal rule → spectacle over consent)? Flag risk/durability paradox. Any signs of transition from Caesarism to genuine hegemony?",
-    "classical": "1-2 sentences: Demagogue or tyrant in Aristotelian terms? Where in Polybius's anacyclosis? Civic virtue assessment.",
-    "bermanRiley": "1-2 sentences: Does a mass movement with organizational capture capacity exist? Is digital infrastructure converting to durable institutional capture or remaining purely attentional?",
-    "svolik": "1-2 sentences: Are voters constraining the leader? Partisan tolerance of norm violations assessment.",
-    "levitskyZiblatt": "1-2 sentences: Status of mutual toleration and institutional forbearance. Which guardrails are holding, which are eroding?"
+    "gramscian": "1-2 sentences in plain language: Can the regime win genuine cultural dominance, or is it stuck relying on one man's personality and constant drama? High-risk but fragile, or genuinely consolidating?",
+    "classical": "1-2 sentences in plain language: Is this a would-be strongman who rules through crowd appeal while undermining law? Is civic culture strong enough to resist?",
+    "bermanRiley": "1-2 sentences in plain language: Does the movement have real organizational muscle (local takeovers, precinct capture) or is it mostly online audiences that show up for rallies but don't do the boring work?",
+    "svolik": "1-2 sentences in plain language: Are the leader's own voters willing to punish norm violations, or do they excuse everything as long as their side wins?",
+    "levitskyZiblatt": "1-2 sentences in plain language: Which institutional guardrails are holding (courts, states, opposition party)? Which are buckling?"
   },
-  "summary": "2-3 paragraph analysis focused on THE NEWS and THE CONJUNCTURE. What is actually happening right now? What are the key events, conflicts, and developments this week? Note hardliner/softliner dynamics if relevant. Then: what does this conjuncture (in Stuart Hall's sense — the specific historical moment where multiple forces and contradictions condense) mean for democratic stability? Contextualize against U-Turn base rates (52-73% of autocratization episodes reverse) — which type of reversal (regime miscalculation, democratic reaction) seems most plausible given current dynamics? Write like an analyst briefing a reader on the situation, not like a methods section. Ground the analysis in concrete recent events. Do NOT discuss model methodology or divergence here — that belongs in modelDiagnoses. This summary should read like informed political analysis, not academic throat-clearing."
+  "summary": "2-3 paragraph analysis in PLAIN LANGUAGE for a general reader. NO JARGON — do not use terms like 'conjuncture,' 'Caesarism,' 'hegemony,' 'anacyclosis,' or other academic vocabulary. The theoretical frameworks should INFORM your analysis invisibly, not appear as terminology. Write like a smart magazine journalist explaining the situation to educated readers who haven't read political science. Start with THE NEWS: What actually happened this week? What are the key events, conflicts, developments? Note if regime radicals and establishment/business types are in visible conflict. Then assess: What does this moment mean for democratic stability? Is the regime overreaching in ways that might backfire? Is opposition mobilizing effectively? Historically, most democratic backsliding gets reversed — does this look more like a regime that's consolidating or one that's stumbling? Ground everything in concrete recent events. This should read like informed political analysis, not a seminar paper."
 }`;
