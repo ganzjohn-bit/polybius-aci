@@ -76,6 +76,13 @@ Look for:
 
 Your analysis MUST engage with this week's actual news. Do not produce a generic assessment that could have been written last month. The summary should reference SPECIFIC RECENT EVENTS by name and date.
 
+CRITICAL — FACTUAL ACCURACY RULES:
+1. DO NOT FABRICATE OR INVENT NEWS EVENTS. Only report things you actually found in search results.
+2. DO NOT COMBINE SEPARATE NEWS ITEMS INTO A SINGLE EVENT. If Gallup stopped polling AND the Supreme Court ruled on something, these are TWO SEPARATE EVENTS. Do not write "The Supreme Court ended Gallup polling" by mashing them together.
+3. Every factual claim must come from a specific source. If you cannot find verification, do not report it as fact.
+4. When uncertain, say "reports indicate" or "according to [source]" — do not present speculation as established fact.
+5. NO "POLITICAL SLOP" — do not generate plausible-sounding analysis by remixing real fragments into false combinations. This is worse than saying nothing.
+
 MANDATORY: Use web search to gather current ${currentYear} data on:
 
 INSTITUTIONAL FACTORS:
