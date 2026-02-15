@@ -9,7 +9,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     authorized: () => true,
     // sign-in is restricted to an allowlist of specific emails, set in env var
     signIn({ profile }) {
-      const allowedEmails = process.env.AUTH_ALLOWED_EMAILS?.split(",").map((e) => e.trim()).filter(Boolean)
+      const allowList = process.env.AUTH_ALLOWED_EMAILS;
+      const allowedEmails = allowList?.split(",").map((e) => e.trim()).filter(Boolean)
       if (!allowedEmails || allowedEmails.length === 0) {
         console.error("Allowed emails not configured. Sign-in is disabled.")
         return false
