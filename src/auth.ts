@@ -10,10 +10,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     authorized: () => true,
     // sign-in is restricted to an allowlist of specific emails
     signIn({ profile }) {
+      if (!profile?.email) return false
+
       // Parse email allowlist
       const allowList = process.env.AUTH_ALLOWED_EMAILS;
       const allowedEmails = allowList?.split(",").map((e) => e.trim()).filter(Boolean) || [];
-      const hasAllowedEmail = !!profile?.email && allowedEmails.includes(profile.email);
+      const hasAllowedEmail = allowedEmails.includes(profile.email);
 
       // Allowlist is required in production
       if (isProductionEnv()) {
@@ -26,10 +28,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       if (!hasAllowedEmail) {
-        console.info(`Proceeding with unallowed email "${profile?.email.slice(0, 5)}..."`);
+        console.info(`Proceeding with unallowed email "${profile.email.slice(0, 5)}..."`);
       }
-      
-      return !!profile?.email;
+
+      return true;
     },
     jwt({ token, profile }) {
       if (profile?.email) {
