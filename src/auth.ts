@@ -12,7 +12,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn({ profile }) {
       // Parse email allowlist
       const allowList = process.env.AUTH_ALLOWED_EMAILS;
-      const allowedEmails = allowList?.split(",").map((e) => e.trim()).filter(Boolean) [];
+      const allowedEmails = allowList?.split(",").map((e) => e.trim()).filter(Boolean) || [];
       const hasAllowedEmail = !!profile?.email && allowedEmails.includes(profile.email);
 
       // Allowlist is required in production
