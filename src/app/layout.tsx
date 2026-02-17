@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { EB_Garamond, Cormorant_Garamond } from "next/font/google";
+import SessionProvider from "@/components/providers/SessionProvider";
 import "./globals.css";
 
 // Classical serif fonts inspired by Loeb Classical Library
@@ -32,7 +33,7 @@ export default function RootLayout({
         className={`${ebGaramond.variable} ${cormorant.variable} antialiased`}
         style={{ fontFamily: 'var(--font-serif), Georgia, serif' }}
       >
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

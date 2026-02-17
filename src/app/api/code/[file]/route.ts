@@ -476,7 +476,7 @@ export async function GET(
 
   let content: string;
   let filename: string;
-  let contentType = 'text/plain';
+  const contentType = 'text/plain';
 
   switch (file) {
     case 'models':
