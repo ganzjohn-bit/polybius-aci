@@ -35,6 +35,7 @@ const LIVE_CACHE_MS = 15 * 60 * 1000;
 
 type SubQueryName = 'institutional' | 'publicOpinion' | 'mobilization' | 'media';
 
+// Budgets here are meant to be proportional to the number of factors and the size of the rubric
 const TOKEN_BUDGETS: Record<SubQueryName | 'synthesis', { live: number; quick: number }> = {
   institutional: { live: 6000, quick: 3000 },
   publicOpinion: { live: 5000, quick: 2500 },
@@ -130,6 +131,7 @@ async function runSubQuery(
   const cacheDuration = searchMode === 'live' ? LIVE_CACHE_MS : QUICK_CACHE_MS;
   const cached = cache.get(cacheKey);
 
+  // Cache duration: 1 hour for quick mode, 15 min for live mode
   if (cached && Date.now() - cached.timestamp < cacheDuration) {
     console.log(`Cache hit for ${cacheKey}`);
     return { name, data: cached.data, error: null, cached: true };
@@ -172,14 +174,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Country required' }, { status: 400 });
     }
 
-    // ── Phase 1: parallel sub-queries ────────────────────────────────
-    const subQueryNames: SubQueryName[] = ['institutional', 'publicOpinion', 'mobilization', 'media'];
+    // ── Phase 1: sub-queries in two batches to stay under rate limits ─
+    const batch1: SubQueryName[] = ['institutional', 'publicOpinion'];
+    const batch2: SubQueryName[] = ['mobilization', 'media'];
 
-    console.log(`[research] Phase 1: launching ${subQueryNames.length} parallel sub-queries for ${country} (${searchMode})`);
-
-    const phase1Settled = await Promise.allSettled(
-      subQueryNames.map((name) => runSubQuery(name, country, searchMode, apiKey)),
+    console.log(`[research] Phase 1a: launching batch 1 (${batch1.join(', ')}) for ${country} (${searchMode})`);
+    const batch1Settled = await Promise.allSettled(
+      batch1.map((name) => runSubQuery(name, country, searchMode, apiKey)),
     );
+
+    console.log(`[research] Phase 1b: launching batch 2 (${batch2.join(', ')}) for ${country} (${searchMode})`);
+    const batch2Settled = await Promise.allSettled(
+      batch2.map((name) => runSubQuery(name, country, searchMode, apiKey)),
+    );
+
+    const phase1Settled = [...batch1Settled, ...batch2Settled];
 
     const errors: string[] = [];
     const mergedResult: Record<string, unknown> = {};
