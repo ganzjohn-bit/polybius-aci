@@ -22,8 +22,9 @@ export interface Phase1Results {
   media?: Record<string, unknown>;
 }
 
-// ── Monolithic builders (kept for rollback) ──────────────────────────
+// ── Monolithic builders ──────────────────────────
 
+// TODO: remove, only preserved for rollback
 export function buildQuickSearchPrompt(country: string) {
   return `
 You are a comparative politics researcher specializing in democratic backsliding and authoritarian consolidation. Based on your knowledge (up to early 2025), analyze ${country}'s vulnerability to authoritarian consolidation.
@@ -75,6 +76,7 @@ ${SCORING_RUBRIC}
 ${JSON_FORMAT}`;
 }
 
+// TODO: remove, only preserved for rollback
 export function buildLiveSearchPrompt(country: string) {
   const currentYear = new Date().getFullYear();
   const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });

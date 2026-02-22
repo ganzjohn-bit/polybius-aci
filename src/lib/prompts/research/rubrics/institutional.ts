@@ -18,6 +18,7 @@ POLITICAL (opposition viability + generic ballot):
 
 SCORING: 0-20=robust competition, 21-40=some advantages, 41-60=significant barriers, 61-80=opposition jailed, 81-100=no opposition
 CIVIL: 0-20=vibrant, 21-40=some restrictions, 41-60=foreign agent laws, 61-80=shut down, 81-100=total control
+
 ELECTION_INTERFERENCE:
   CRITICAL - US-SPECIFIC STRUCTURAL CONSTRAINTS:
   The United States has ~10,000 separate election jurisdictions run by county/local officials, ~95% paper ballots,
