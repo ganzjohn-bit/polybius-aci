@@ -1,53 +1,106 @@
-export const PUBLIC_OPINION_FORMAT = `
-IMPORTANT: After completing your research, you MUST respond with ONLY the JSON below. No introductory text, no explanations, no markdown - just the raw JSON object starting with { and ending with }:
-  TREND VALUES - use ONLY these three values for all "trend" fields:
-  "improving" = score is going DOWN (situation getting BETTER for democracy, WORSE for authoritarian consolidation)
-  "deteriorating" = score is going UP (situation getting WORSE for democracy, BETTER for authoritarian consolidation)
-  "stable" = score is roughly unchanged
+const trendEnum = { type: "string", enum: ["improving", "deteriorating", "stable"] };
 
-  DIRECTION IS ALWAYS FROM DEMOCRACY'S PERSPECTIVE. Examples:
-  - Regime approval dropping from 45% to 39% → publicOpinion trend = "improving" (harder to consolidate)
-
-  DO NOT use "growing", "strengthening", "worsening", "weakening", or any other term. ONLY "improving", "deteriorating", or "stable".
-
-{
-  "publicOpinion": {
-    "score": 0,
-    "evidence": "overall approval % and trend",
-    "trend": "stable",
-    "sources": "polling sources",
-    "demographics": {
-      "marxianClass": {
-        "capitalOwners": {"approval": 0, "note": "business owners, investors, landlords"},
-        "workingClass": {"approval": 0, "note": "wage workers, employees"},
-        "classGap": 0,
-        "capitalLaborDivergence": "describe tension or alignment"
-      },
-      "weberianStatus": {
-        "nonCollege": 0,
-        "college": 0,
-        "credentialGap": 0,
-        "note": "education polarization - not Marxian class"
-      },
-      "byRace": {
-        "white": 0,
-        "black": 0,
-        "hispanic": 0,
-        "raceGap": 0
-      },
-      "eliteVsMass": {
-        "eliteApproval": 0,
-        "massApproval": 0,
-        "divergence": 0,
-        "note": "elite = capital owners + high credentialed"
-      },
-      "keyFindings": ["finding 1", "finding 2"],
-      "theoreticalImplications": {
-        "classAnalysis": "what the business owners vs workers split means for regime coalition",
-        "eliteMassAnalysis": "what the gap between elites and ordinary people means",
-        "culturalControl": "can the regime win genuine buy-in across society, or is it stuck with its base while everyone else resists?"
-      }
-    }
+const factorSchema = {
+  type: "object",
+  required: ["score", "evidence", "trend", "sources"],
+  properties: {
+    score: { type: "number" },
+    evidence: { type: "string" },
+    trend: trendEnum,
+    sources: { type: "string" },
   },
-  "corporateCompliance": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"}
-}`;
+};
+
+const publicOpinionSchema = {
+  type: "object",
+  required: ["score", "evidence", "trend", "sources", "demographics"],
+  properties: {
+    score: { type: "number" },
+    evidence: { type: "string", description: "overall approval % and trend" },
+    trend: trendEnum,
+    sources: { type: "string", description: "polling sources" },
+    demographics: {
+      type: "object",
+      required: ["marxianClass", "weberianStatus", "byRace", "eliteVsMass", "keyFindings", "theoreticalImplications"],
+      properties: {
+        marxianClass: {
+          type: "object",
+          required: ["capitalOwners", "workingClass", "classGap", "capitalLaborDivergence"],
+          properties: {
+            capitalOwners: {
+              type: "object",
+              required: ["approval", "note"],
+              properties: {
+                approval: { type: "number" },
+                note: { type: "string", description: "business owners, investors, landlords" },
+              },
+            },
+            workingClass: {
+              type: "object",
+              required: ["approval", "note"],
+              properties: {
+                approval: { type: "number" },
+                note: { type: "string", description: "wage workers, employees" },
+              },
+            },
+            classGap: { type: "number" },
+            capitalLaborDivergence: { type: "string", description: "describe tension or alignment" },
+          },
+        },
+        weberianStatus: {
+          type: "object",
+          required: ["nonCollege", "college", "credentialGap", "note"],
+          properties: {
+            nonCollege: { type: "number" },
+            college: { type: "number" },
+            credentialGap: { type: "number" },
+            note: { type: "string", description: "education polarization - not Marxian class" },
+          },
+        },
+        byRace: {
+          type: "object",
+          required: ["white", "black", "hispanic", "raceGap"],
+          properties: {
+            white: { type: "number" },
+            black: { type: "number" },
+            hispanic: { type: "number" },
+            raceGap: { type: "number" },
+          },
+        },
+        eliteVsMass: {
+          type: "object",
+          required: ["eliteApproval", "massApproval", "divergence", "note"],
+          properties: {
+            eliteApproval: { type: "number" },
+            massApproval: { type: "number" },
+            divergence: { type: "number" },
+            note: { type: "string", description: "elite = capital owners + high credentialed" },
+          },
+        },
+        keyFindings: { type: "array", items: { type: "string" } },
+        theoreticalImplications: {
+          type: "object",
+          required: ["classAnalysis", "eliteMassAnalysis", "culturalControl"],
+          properties: {
+            classAnalysis: { type: "string", description: "what the business owners vs workers split means for regime coalition" },
+            eliteMassAnalysis: { type: "string", description: "what the gap between elites and ordinary people means" },
+            culturalControl: { type: "string", description: "can the regime win genuine buy-in across society, or is it stuck with its base while everyone else resists?" },
+          },
+        },
+      },
+    },
+  },
+};
+
+export const PUBLIC_OPINION_ANALYSIS_TOOL = {
+  name: "polybius_public_opinion_analysis",
+  description: "Submit the completed public opinion analysis with structured approval ratings, demographic breakdowns, and corporate compliance scores.",
+  input_schema: {
+    type: "object",
+    required: ["publicOpinion", "corporateCompliance"],
+    properties: {
+      publicOpinion: publicOpinionSchema,
+      corporateCompliance: factorSchema,
+    },
+  },
+};

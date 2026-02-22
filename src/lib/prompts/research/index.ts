@@ -5,11 +5,13 @@ import { PUBLIC_OPINION_RUBRIC } from '@/lib/prompts/research/rubrics/public-opi
 import { MOBILIZATION_RUBRIC } from '@/lib/prompts/research/rubrics/mobilization';
 import { MEDIA_RUBRIC } from '@/lib/prompts/research/rubrics/media';
 import { SYNTHESIS_RUBRIC } from '@/lib/prompts/research/rubrics/synthesis';
-import { INSTITUTIONAL_FORMAT } from '@/lib/prompts/research/formats/institutional';
-import { PUBLIC_OPINION_FORMAT } from '@/lib/prompts/research/formats/public-opinion';
-import { MOBILIZATION_FORMAT } from '@/lib/prompts/research/formats/mobilization';
-import { MEDIA_FORMAT } from '@/lib/prompts/research/formats/media';
-import { SYNTHESIS_FORMAT } from '@/lib/prompts/research/formats/synthesis';
+import { INSTITUTIONAL_ANALYSIS_TOOL } from '@/lib/prompts/research/formats/institutional';
+import { PUBLIC_OPINION_ANALYSIS_TOOL } from '@/lib/prompts/research/formats/public-opinion';
+import { MOBILIZATION_ANALYSIS_TOOL } from '@/lib/prompts/research/formats/mobilization';
+import { MEDIA_ANALYSIS_TOOL } from '@/lib/prompts/research/formats/media';
+import { SYNTHESIS_ANALYSIS_TOOL } from '@/lib/prompts/research/formats/synthesis';
+
+export { INSTITUTIONAL_ANALYSIS_TOOL, PUBLIC_OPINION_ANALYSIS_TOOL, MOBILIZATION_ANALYSIS_TOOL, MEDIA_ANALYSIS_TOOL, SYNTHESIS_ANALYSIS_TOOL };
 
 export type SearchMode = 'quick' | 'live';
 
@@ -153,6 +155,21 @@ ${JSON_FORMAT}`;
 
 // ── Sub-query builders (parallel decomposition) ──────────────────────
 
+const TREND_INSTRUCTIONS = `
+TREND VALUES - use ONLY these three values for all "trend" fields:
+"improving" = score is going DOWN (situation getting BETTER for democracy, WORSE for authoritarian consolidation)
+"deteriorating" = score is going UP (situation getting WORSE for democracy, BETTER for authoritarian consolidation)
+"stable" = score is roughly unchanged
+
+DIRECTION IS ALWAYS FROM DEMOCRACY'S PERSPECTIVE. Examples:
+- Courts ruling against executive overreach → judicial trend = "improving"
+- Opposition mobilization growing → mobilizationalBalance trend = "improving"
+- DHS deploying more agents domestically → stateCapacity trend = "deteriorating"
+- Media outlets being shut out of briefings → media trend = "deteriorating"
+- Regime approval dropping from 45% to 39% → publicOpinion trend = "improving" (harder to consolidate)
+
+DO NOT use "growing", "strengthening", "worsening", "weakening", or any other term. ONLY "improving", "deteriorating", or "stable".`;
+
 const FACTUAL_ACCURACY_RULES = `
 CRITICAL — FACTUAL ACCURACY RULES:
 1. DO NOT FABRICATE OR INVENT NEWS EVENTS. Only report things you actually found in search results.
@@ -191,7 +208,9 @@ ${instructions}
 
 ${INSTITUTIONAL_RUBRIC}
 
-${INSTITUTIONAL_FORMAT}`;
+${TREND_INSTRUCTIONS}
+
+After completing your research, call the ${INSTITUTIONAL_ANALYSIS_TOOL.name} tool with your results.`;
 }
 
 export function buildPublicOpinionPrompt(country: string, mode: SearchMode) {
@@ -225,7 +244,9 @@ ${instructions}
 
 ${PUBLIC_OPINION_RUBRIC}
 
-${PUBLIC_OPINION_FORMAT}`;
+${TREND_INSTRUCTIONS}
+
+After completing your research, call the ${PUBLIC_OPINION_ANALYSIS_TOOL.name} tool with your results.`;
 }
 
 export function buildMobilizationPrompt(country: string, mode: SearchMode) {
@@ -269,7 +290,9 @@ ${instructions}
 
 ${MOBILIZATION_RUBRIC}
 
-${MOBILIZATION_FORMAT}`;
+${TREND_INSTRUCTIONS}
+
+After completing your research, call the ${MOBILIZATION_ANALYSIS_TOOL.name} tool with your results.`;
 }
 
 export function buildMediaPrompt(country: string, mode: SearchMode) {
@@ -307,7 +330,9 @@ ${instructions}
 
 ${MEDIA_RUBRIC}
 
-${MEDIA_FORMAT}`;
+${TREND_INSTRUCTIONS}
+
+After completing your research, call the ${MEDIA_ANALYSIS_TOOL.name} tool with your results.`;
 }
 
 export function buildSynthesisPrompt(country: string, mode: SearchMode, phase1Results: Phase1Results) {
@@ -324,5 +349,5 @@ Using the factor scores and evidence above, produce the theoretical model diagno
 
 ${SYNTHESIS_RUBRIC}
 
-${SYNTHESIS_FORMAT}`;
+After completing your synthesis, call the ${SYNTHESIS_ANALYSIS_TOOL.name} tool with your results.`;
 }

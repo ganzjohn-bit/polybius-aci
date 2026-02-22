@@ -7,6 +7,11 @@ import {
   buildSynthesisPrompt,
   buildQuickSearchPrompt,
   buildLiveSearchPrompt,
+  INSTITUTIONAL_ANALYSIS_TOOL,
+  PUBLIC_OPINION_ANALYSIS_TOOL,
+  MOBILIZATION_ANALYSIS_TOOL,
+  MEDIA_ANALYSIS_TOOL,
+  SYNTHESIS_ANALYSIS_TOOL,
 } from './index';
 
 describe('sub-query prompt builders', () => {
@@ -27,22 +32,17 @@ describe('sub-query prompt builders', () => {
       expect(prompt).toContain('FACTUAL ACCURACY RULES');
     });
 
-    it('includes institutional JSON format fields', () => {
+    it('references the institutional analysis tool', () => {
       const prompt = buildInstitutionalPrompt('United States', 'quick');
-      expect(prompt).toContain('"judicial"');
-      expect(prompt).toContain('"federalism"');
-      expect(prompt).toContain('"political"');
-      expect(prompt).toContain('"civil"');
-      expect(prompt).toContain('"electionInterference"');
-      expect(prompt).toContain('"genericBallot"');
+      expect(prompt).toContain(INSTITUTIONAL_ANALYSIS_TOOL.name);
     });
 
-    it('does not include fields from other sub-queries', () => {
+    it('does not reference other analysis tools', () => {
       const prompt = buildInstitutionalPrompt('United States', 'quick');
-      expect(prompt).not.toContain('"publicOpinion"');
-      expect(prompt).not.toContain('"mobilizationalBalance"');
-      expect(prompt).not.toContain('"mediaLandscape"');
-      expect(prompt).not.toContain('"modelDiagnoses"');
+      expect(prompt).not.toContain(PUBLIC_OPINION_ANALYSIS_TOOL.name);
+      expect(prompt).not.toContain(MOBILIZATION_ANALYSIS_TOOL.name);
+      expect(prompt).not.toContain(MEDIA_ANALYSIS_TOOL.name);
+      expect(prompt).not.toContain(SYNTHESIS_ANALYSIS_TOOL.name);
     });
   });
 
@@ -55,19 +55,16 @@ describe('sub-query prompt builders', () => {
       expect(prompt).toContain('WEBERIAN STATUS');
     });
 
-    it('includes demographic format fields', () => {
+    it('references the public opinion analysis tool', () => {
       const prompt = buildPublicOpinionPrompt('United States', 'quick');
-      expect(prompt).toContain('"publicOpinion"');
-      expect(prompt).toContain('"demographics"');
-      expect(prompt).toContain('"marxianClass"');
-      expect(prompt).toContain('"corporateCompliance"');
+      expect(prompt).toContain(PUBLIC_OPINION_ANALYSIS_TOOL.name);
     });
 
-    it('does not include fields from other sub-queries', () => {
+    it('does not reference other analysis tools', () => {
       const prompt = buildPublicOpinionPrompt('United States', 'quick');
-      expect(prompt).not.toContain('"judicial"');
-      expect(prompt).not.toContain('"mobilizationalBalance"');
-      expect(prompt).not.toContain('"mediaLandscape"');
+      expect(prompt).not.toContain(INSTITUTIONAL_ANALYSIS_TOOL.name);
+      expect(prompt).not.toContain(MOBILIZATION_ANALYSIS_TOOL.name);
+      expect(prompt).not.toContain(MEDIA_ANALYSIS_TOOL.name);
     });
   });
 
@@ -80,17 +77,16 @@ describe('sub-query prompt builders', () => {
       expect(prompt).toContain('CAESARISM ASSESSMENT');
     });
 
-    it('includes mobilization format fields', () => {
+    it('references the mobilization analysis tool', () => {
       const prompt = buildMobilizationPrompt('United States', 'quick');
-      expect(prompt).toContain('"mobilizationalBalance"');
-      expect(prompt).toContain('"stateCapacity"');
+      expect(prompt).toContain(MOBILIZATION_ANALYSIS_TOOL.name);
     });
 
-    it('does not include fields from other sub-queries', () => {
+    it('does not reference other analysis tools', () => {
       const prompt = buildMobilizationPrompt('United States', 'quick');
-      expect(prompt).not.toContain('"judicial"');
-      expect(prompt).not.toContain('"publicOpinion"');
-      expect(prompt).not.toContain('"mediaLandscape"');
+      expect(prompt).not.toContain(INSTITUTIONAL_ANALYSIS_TOOL.name);
+      expect(prompt).not.toContain(PUBLIC_OPINION_ANALYSIS_TOOL.name);
+      expect(prompt).not.toContain(MEDIA_ANALYSIS_TOOL.name);
     });
   });
 
@@ -101,21 +97,16 @@ describe('sub-query prompt builders', () => {
       expect(prompt).toContain('ACTUAL INSTITUTIONAL FUNCTION');
     });
 
-    it('includes media landscape format fields', () => {
+    it('references the media analysis tool', () => {
       const prompt = buildMediaPrompt('United States', 'quick');
-      expect(prompt).toContain('"media"');
-      expect(prompt).toContain('"mediaLandscape"');
-      expect(prompt).toContain('"eliteOutlets"');
-      expect(prompt).toContain('"substackSphere"');
-      expect(prompt).toContain('"podcastSphere"');
-      expect(prompt).toContain('"nixonToChinaMoments"');
+      expect(prompt).toContain(MEDIA_ANALYSIS_TOOL.name);
     });
 
-    it('does not include fields from other sub-queries', () => {
+    it('does not reference other analysis tools', () => {
       const prompt = buildMediaPrompt('United States', 'quick');
-      expect(prompt).not.toContain('"judicial"');
-      expect(prompt).not.toContain('"publicOpinion"');
-      expect(prompt).not.toContain('"mobilizationalBalance"');
+      expect(prompt).not.toContain(INSTITUTIONAL_ANALYSIS_TOOL.name);
+      expect(prompt).not.toContain(PUBLIC_OPINION_ANALYSIS_TOOL.name);
+      expect(prompt).not.toContain(MOBILIZATION_ANALYSIS_TOOL.name);
     });
   });
 
@@ -143,20 +134,15 @@ describe('sub-query prompt builders', () => {
       expect(prompt).toContain('U-TURN FRAMEWORK');
     });
 
-    it('includes synthesis format fields', () => {
+    it('references the synthesis analysis tool', () => {
       const prompt = buildSynthesisPrompt('United States', 'quick', mockPhase1Results);
-      expect(prompt).toContain('"modelDiagnoses"');
-      expect(prompt).toContain('"summary"');
-      expect(prompt).toContain('"gramscian"');
-      expect(prompt).toContain('"levitskyZiblatt"');
+      expect(prompt).toContain(SYNTHESIS_ANALYSIS_TOOL.name);
     });
 
-    it('does not include factor format fields', () => {
+    it('does not reference other analysis tools', () => {
       const prompt = buildSynthesisPrompt('United States', 'quick', mockPhase1Results);
-      // The format section should not have factor output fields
-      // (but the phase1 JSON will contain them as data)
-      expect(prompt).not.toContain('"mediaLandscape"');
-      expect(prompt).not.toContain('"electionInterference"');
+      expect(prompt).not.toContain(INSTITUTIONAL_ANALYSIS_TOOL.name);
+      expect(prompt).not.toContain(MEDIA_ANALYSIS_TOOL.name);
     });
 
     it('instructs not to re-score factors', () => {
@@ -166,30 +152,30 @@ describe('sub-query prompt builders', () => {
   });
 });
 
-describe('sub-query format coverage', () => {
-  it('all ResearchResults factor fields are covered across sub-query formats', () => {
+describe('analysis tool schema coverage', () => {
+  it('all ResearchResults factor fields are covered across analysis tool schemas', () => {
     const allFields = [
       'judicial', 'federalism', 'political', 'media', 'civil',
       'publicOpinion', 'mobilizationalBalance', 'stateCapacity',
       'corporateCompliance', 'electionInterference',
     ];
 
-    const allSubQueryPrompts = [
-      buildInstitutionalPrompt('US', 'quick'),
-      buildPublicOpinionPrompt('US', 'quick'),
-      buildMobilizationPrompt('US', 'quick'),
-      buildMediaPrompt('US', 'quick'),
-    ].join('\n');
+    const allToolProperties = {
+      ...INSTITUTIONAL_ANALYSIS_TOOL.input_schema.properties,
+      ...PUBLIC_OPINION_ANALYSIS_TOOL.input_schema.properties,
+      ...MOBILIZATION_ANALYSIS_TOOL.input_schema.properties,
+      ...MEDIA_ANALYSIS_TOOL.input_schema.properties,
+    };
 
     for (const field of allFields) {
-      expect(allSubQueryPrompts).toContain(`"${field}"`);
+      expect(allToolProperties).toHaveProperty(field);
     }
   });
 
-  it('synthesis covers modelDiagnoses and summary', () => {
-    const prompt = buildSynthesisPrompt('US', 'quick', {});
-    expect(prompt).toContain('"modelDiagnoses"');
-    expect(prompt).toContain('"summary"');
+  it('synthesis tool covers modelDiagnoses and summary', () => {
+    const props = SYNTHESIS_ANALYSIS_TOOL.input_schema.properties;
+    expect(props).toHaveProperty('modelDiagnoses');
+    expect(props).toHaveProperty('summary');
   });
 });
 

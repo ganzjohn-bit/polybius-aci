@@ -1,47 +1,100 @@
-export const MEDIA_FORMAT = `
-IMPORTANT: After completing your research, you MUST respond with ONLY the JSON below. No introductory text, no explanations, no markdown - just the raw JSON object starting with { and ending with }:
-  TREND VALUES - use ONLY these three values for all "trend" fields:
-  "improving" = score is going DOWN (situation getting BETTER for democracy, WORSE for authoritarian consolidation)
-  "deteriorating" = score is going UP (situation getting WORSE for democracy, BETTER for authoritarian consolidation)
-  "stable" = score is roughly unchanged
+const trendEnum = { type: "string", enum: ["improving", "deteriorating", "stable"] };
 
-  DIRECTION IS ALWAYS FROM DEMOCRACY'S PERSPECTIVE. Examples:
-  - Media outlets being shut out of briefings → media trend = "deteriorating"
+const factorSchema = {
+  type: "object",
+  required: ["score", "evidence", "trend", "sources"],
+  properties: {
+    score: { type: "number" },
+    evidence: { type: "string" },
+    trend: trendEnum,
+    sources: { type: "string" },
+  },
+};
 
-  DO NOT use "growing", "strengthening", "worsening", "weakening", or any other term. ONLY "improving", "deteriorating", or "stable".
+const mediaLandscapeSchema = {
+  type: "object",
+  required: ["overallSentiment", "eliteOutlets", "mainstreamOutlets", "populistOutlets", "substackSphere", "podcastSphere", "nixonToChinaMoments", "cultureIndustryCapture"],
+  properties: {
+    overallSentiment: { type: "string", enum: ["crisis", "negative", "mixed", "neutral", "positive"] },
+    eliteOutlets: {
+      type: "object",
+      required: ["sentiment", "keyNarratives", "notableOpEds"],
+      properties: {
+        sentiment: { type: "string", enum: ["critical", "mixed", "supportive"] },
+        keyNarratives: { type: "array", items: { type: "string" } },
+        notableOpEds: { type: "array", items: { type: "string" } },
+      },
+    },
+    mainstreamOutlets: {
+      type: "object",
+      required: ["sentiment", "keyNarratives"],
+      properties: {
+        sentiment: { type: "string", enum: ["critical", "mixed", "supportive"] },
+        keyNarratives: { type: "array", items: { type: "string" } },
+      },
+    },
+    populistOutlets: {
+      type: "object",
+      required: ["regimeAligned", "opposition"],
+      properties: {
+        regimeAligned: {
+          type: "object",
+          required: ["sentiment", "narratives"],
+          properties: {
+            sentiment: { type: "string", enum: ["critical", "loyal"] },
+            narratives: { type: "array", items: { type: "string" } },
+          },
+        },
+        opposition: {
+          type: "object",
+          required: ["sentiment", "narratives"],
+          properties: {
+            sentiment: { type: "string", enum: ["critical", "hopeful"] },
+            narratives: { type: "array", items: { type: "string" } },
+          },
+        },
+      },
+    },
+    substackSphere: {
+      type: "object",
+      required: ["dominantVoices", "regimeVsOpposition", "keyTakes"],
+      properties: {
+        dominantVoices: { type: "array", items: { type: "string" } },
+        regimeVsOpposition: { type: "string", enum: ["regime-dominated", "balanced", "opposition-dominated"] },
+        keyTakes: { type: "array", items: { type: "string" } },
+      },
+    },
+    podcastSphere: {
+      type: "object",
+      required: ["majorDiscussions", "regimeVsOpposition"],
+      properties: {
+        majorDiscussions: { type: "array", items: { type: "string" } },
+        regimeVsOpposition: { type: "string", enum: ["regime-dominated", "balanced", "opposition-dominated"] },
+      },
+    },
+    nixonToChinaMoments: { type: "array", items: { type: "string" }, description: "unexpected editorial alignments; softliner defections" },
+    cultureIndustryCapture: {
+      type: "object",
+      required: ["authoritarianDiscourseLevel", "evidence", "dehumanizingLanguage", "scapegoatingPresent"],
+      properties: {
+        authoritarianDiscourseLevel: { type: "string", enum: ["subcultural", "mainstreaming", "normalized"] },
+        evidence: { type: "array", items: { type: "string" } },
+        dehumanizingLanguage: { type: "boolean" },
+        scapegoatingPresent: { type: "boolean" },
+      },
+    },
+  },
+};
 
-{
-  "media": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
-  "mediaLandscape": {
-    "overallSentiment": "crisis/negative/mixed/neutral/positive",
-    "eliteOutlets": {
-      "sentiment": "critical/mixed/supportive",
-      "keyNarratives": ["narrative 1", "narrative 2"],
-      "notableOpEds": ["outlet: headline/take"]
+export const MEDIA_ANALYSIS_TOOL = {
+  name: "polybius_media_analysis",
+  description: "Submit the completed media analysis with structured scores for press freedom and the full media landscape assessment.",
+  input_schema: {
+    type: "object",
+    required: ["media", "mediaLandscape"],
+    properties: {
+      media: factorSchema,
+      mediaLandscape: mediaLandscapeSchema,
     },
-    "mainstreamOutlets": {
-      "sentiment": "critical/mixed/supportive",
-      "keyNarratives": ["narrative 1", "narrative 2"]
-    },
-    "populistOutlets": {
-      "regimeAligned": {"sentiment": "critical/loyal", "narratives": ["narrative"]},
-      "opposition": {"sentiment": "critical/hopeful", "narratives": ["narrative"]}
-    },
-    "substackSphere": {
-      "dominantVoices": ["name: position"],
-      "regimeVsOpposition": "regime-dominated/balanced/opposition-dominated",
-      "keyTakes": ["take 1", "take 2"]
-    },
-    "podcastSphere": {
-      "majorDiscussions": ["podcast: topic discussed"],
-      "regimeVsOpposition": "regime-dominated/balanced/opposition-dominated"
-    },
-    "nixonToChinaMoments": ["unexpected editorial alignments (regime outlet criticizing regime, opposition praising); SOFTLINER DEFECTIONS (GOP officials, donors, or business allies breaking with regime — key U-Turn signal)"],
-    "cultureIndustryCapture": {
-      "authoritarianDiscourseLevel": "subcultural/mainstreaming/normalized",
-      "evidence": ["where authoritarian rhetoric appears"],
-      "dehumanizingLanguage": false,
-      "scapegoatingPresent": false
-    }
-  }
-}`;
+  },
+};

@@ -1,20 +1,49 @@
-export const INSTITUTIONAL_FORMAT = `
-IMPORTANT: After completing your research, you MUST respond with ONLY the JSON below. No introductory text, no explanations, no markdown - just the raw JSON object starting with { and ending with }:
-  TREND VALUES - use ONLY these three values for all "trend" fields:
-  "improving" = score is going DOWN (situation getting BETTER for democracy, WORSE for authoritarian consolidation)
-  "deteriorating" = score is going UP (situation getting WORSE for democracy, BETTER for authoritarian consolidation)
-  "stable" = score is roughly unchanged
+const trendEnum = { type: "string", enum: ["improving", "deteriorating", "stable"] };
 
-  DIRECTION IS ALWAYS FROM DEMOCRACY'S PERSPECTIVE. Examples:
-  - Courts ruling against executive overreach → judicial trend = "improving"
-  - Opposition mobilization growing → mobilizationalBalance trend = "improving"
+const factorSchema = {
+  type: "object",
+  required: ["score", "evidence", "trend", "sources"],
+  properties: {
+    score: { type: "number" },
+    evidence: { type: "string" },
+    trend: trendEnum,
+    sources: { type: "string" },
+  },
+};
 
-  DO NOT use "growing", "strengthening", "worsening", "weakening", or any other term. ONLY "improving", "deteriorating", or "stable".
+const politicalSchema = {
+  type: "object",
+  required: ["score", "evidence", "trend", "sources", "genericBallot"],
+  properties: {
+    score: { type: "number" },
+    evidence: { type: "string", description: "specific evidence including generic ballot margin (e.g., D+4)" },
+    trend: trendEnum,
+    sources: { type: "string" },
+    genericBallot: {
+      type: "object",
+      required: ["margin", "leader", "pollDate", "source"],
+      properties: {
+        margin: { type: "number" },
+        leader: { type: "string", description: "D or R" },
+        pollDate: { type: "string" },
+        source: { type: "string", description: "pollster name" },
+      },
+    },
+  },
+};
 
-{
-  "judicial": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
-  "federalism": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
-  "political": {"score": 0, "evidence": "specific evidence including generic ballot margin (e.g., D+4)", "trend": "stable", "sources": "sources", "genericBallot": {"margin": 0, "leader": "D or R", "pollDate": "date", "source": "pollster"}},
-  "civil": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"},
-  "electionInterference": {"score": 0, "evidence": "specific evidence", "trend": "stable", "sources": "sources"}
-}`;
+export const INSTITUTIONAL_ANALYSIS_TOOL = {
+  name: "polybius_institutional_analysis",
+  description: "Submit the completed institutional analysis with structured scores, evidence, and trends for each institutional factor.",
+  input_schema: {
+    type: "object",
+    required: ["judicial", "federalism", "political", "civil", "electionInterference"],
+    properties: {
+      judicial: factorSchema,
+      federalism: factorSchema,
+      political: politicalSchema,
+      civil: factorSchema,
+      electionInterference: factorSchema,
+    },
+  },
+};

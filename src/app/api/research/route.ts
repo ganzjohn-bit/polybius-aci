@@ -1,25 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cleanObjectStrings } from '@/lib/text-utils';
+import { findToolUseBlock, ApiResponse, ContentBlock } from '@/lib/prompt-utils';
 import {
   buildInstitutionalPrompt,
   buildPublicOpinionPrompt,
   buildMobilizationPrompt,
   buildMediaPrompt,
   buildSynthesisPrompt,
+  INSTITUTIONAL_ANALYSIS_TOOL,
+  PUBLIC_OPINION_ANALYSIS_TOOL,
+  MOBILIZATION_ANALYSIS_TOOL,
+  MEDIA_ANALYSIS_TOOL,
+  SYNTHESIS_ANALYSIS_TOOL,
   type SearchMode,
   type Phase1Results,
 } from '@/lib/prompts/research';
 import { researchFixture } from '@/lib/fixtures/research';
-
-interface ContentBlock {
-  type: string;
-  text?: string;
-}
-
-interface ApiResponse {
-  content: ContentBlock[];
-  stop_reason: string;
-}
 
 interface CacheEntry {
   data: Record<string, unknown>;
@@ -51,51 +47,88 @@ const PROMPT_BUILDERS: Record<SubQueryName, (country: string, mode: SearchMode) 
   media: buildMediaPrompt,
 };
 
+interface AnalysisTool {
+  name: string;
+  description: string;
+  input_schema: Record<string, unknown>;
+}
+
+const ANALYSIS_TOOLS: Record<SubQueryName | 'synthesis', AnalysisTool> = {
+  institutional: INSTITUTIONAL_ANALYSIS_TOOL,
+  publicOpinion: PUBLIC_OPINION_ANALYSIS_TOOL,
+  mobilization: MOBILIZATION_ANALYSIS_TOOL,
+  media: MEDIA_ANALYSIS_TOOL,
+  synthesis: SYNTHESIS_ANALYSIS_TOOL,
+};
+
 // ── Helpers ──────────────────────────────────────────────────────────
+
+const MAX_TURNS = 5;
 
 async function callAnthropic(
   prompt: string,
   apiKey: string,
   maxTokens: number,
-  useTool: boolean,
+  useWebSearch: boolean,
+  analysisTool: AnalysisTool,
 ): Promise<{ data: Record<string, unknown> | null; error: string | null }> {
-  const requestBody: {
-    model: string;
-    max_tokens: number;
-    temperature: number;
-    messages: { role: string; content: string }[];
-    tools?: { type: string; name: string }[];
-  } = {
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: maxTokens,
-    temperature: 0,
-    messages: [{ role: 'user', content: prompt }],
-  };
-
-  if (useTool) {
-    requestBody.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
+  const tools: Array<{ type: string; name: string } | AnalysisTool> = [analysisTool];
+  if (useWebSearch) {
+    tools.unshift({ type: 'web_search_20250305', name: 'web_search' });
   }
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify(requestBody),
-  });
+  const messages: Array<{ role: string; content: string | ContentBlock[] }> = [
+    { role: 'user', content: prompt },
+  ];
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    return { data: null, error: `Anthropic API error ${response.status}: ${errorText}` };
+  let data!: ApiResponse;
+
+  for (let turn = 0; turn < MAX_TURNS; turn++) {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: maxTokens,
+        temperature: 0,
+        messages,
+        tools,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return { data: null, error: `Anthropic API error ${response.status}: ${errorText}` };
+    }
+
+    data = await response.json();
+
+    // Check if the analysis tool was called
+    const toolUseBlock = findToolUseBlock(data, analysisTool.name);
+    if (toolUseBlock?.input) {
+      return { data: toolUseBlock.input, error: null };
+    }
+
+    // If paused (e.g. hit server tool use limit for this turn), continue
+    if (data.stop_reason === 'pause_turn') {
+      messages.push({ role: 'assistant', content: data.content });
+      messages.push({ role: 'user', content: 'Continue your analysis.' });
+      continue;
+    }
+
+    // end_turn, max_tokens, or other — stop looping
+    break;
   }
 
-  const apiData: ApiResponse = await response.json();
-  const textBlocks = apiData.content.filter((item) => item.type === 'text' && item.text);
+  // Fallback: extract JSON from text blocks
+  const textBlocks = data.content.filter((item) => item.type === 'text' && item.text);
 
   if (textBlocks.length === 0) {
-    return { data: null, error: `No text content in response (stop_reason: ${apiData.stop_reason})` };
+    return { data: null, error: `No text content in response (stop_reason: ${data.stop_reason})` };
   }
 
   let text = textBlocks.map((item) => item.text).join('\n');
@@ -140,10 +173,11 @@ async function runSubQuery(
   const prompt = PROMPT_BUILDERS[name](country, searchMode);
   const budget = TOKEN_BUDGETS[name];
   const maxTokens = searchMode === 'live' ? budget.live : budget.quick;
-  const useTool = searchMode === 'live';
+  const useWebSearch = searchMode === 'live';
+  const analysisTool = ANALYSIS_TOOLS[name];
 
   try {
-    const { data, error } = await callAnthropic(prompt, apiKey, maxTokens, useTool);
+    const { data, error } = await callAnthropic(prompt, apiKey, maxTokens, useWebSearch, analysisTool);
     if (data) {
       cache.set(cacheKey, { data, timestamp: Date.now() });
       console.log(`Cached result for ${cacheKey}`);
@@ -225,6 +259,7 @@ export async function POST(request: NextRequest) {
       apiKey,
       synthesisMaxTokens,
       false,
+      ANALYSIS_TOOLS.synthesis,
     );
 
     if (synthesisError) {
