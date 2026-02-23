@@ -60,8 +60,6 @@ function generateTheoreticalExplanation(
     weight: weights[f] || 0
   }));
 
-  const stressLevel = predictedScore >= 60 ? 'high' : predictedScore >= 40 ? 'moderate' : 'low';
-
   // Model-specific interpretations
   const explanations: Record<string, (factors: typeof topFactorValues, score: number) => string> = {
     'Levitsky-Ziblatt': (factors, score) => {
@@ -73,14 +71,12 @@ function generateTheoreticalExplanation(
     },
     'Svolik': (factors, score) => {
       const publicOpinion = currentFactors.publicOpinion || 0;
-      const political = currentFactors.political || 0;
       return score >= 50
         ? `Polarization enabling authoritarian tolerance: public opinion (${publicOpinion}) suggests voters may excuse democratic violations from their side. Elite coordination weakening.`
         : `Public still punishing democratic violations across partisan lines; elite defection not yet normalized.`;
     },
     'Marxian/Kaleckian': (factors, score) => {
       const corporate = currentFactors.corporateCompliance || 0;
-      const stateCapacity = currentFactors.stateCapacity || 0;
       return score >= 50
         ? `Capital-state alignment dangerous: corporate compliance (${corporate}) suggests business class sees regime as protecting interests against redistribution.`
         : `Business class not yet fully aligned with authoritarian project; profit motive may still check regime.`;
@@ -88,7 +84,6 @@ function generateTheoreticalExplanation(
     'Gramscian/Hall': (factors, score) => {
       const media = currentFactors.media || 0;
       const publicOpinion = currentFactors.publicOpinion || 0;
-      const mobilization = currentFactors.mobilizationalBalance || 0;
       return score >= 50
         ? `Hegemonic shift underway: media capture (${media}) and public opinion (${publicOpinion}) indicate authoritarian "common sense" being constructed. Counter-hegemonic forces fragmented.`
         : `Cultural hegemony contested; opposition narratives still circulating, counter-hegemonic articulation possible.`;
@@ -117,7 +112,6 @@ function generateTheoreticalExplanation(
     'Classical Republican': (factors, score) => {
       const publicOpinion = currentFactors.publicOpinion || 0;
       const civil = currentFactors.civil || 0;
-      const federalism = currentFactors.federalism || 0;
       return score >= 50
         ? `Civic virtue declining: public opinion (${publicOpinion}) and weakened civil associations (${civil}) suggest atomization enabling tyranny.`
         : `Civic associations and federal structures still provide republican bulwarks against concentrated power.`;
@@ -126,7 +120,6 @@ function generateTheoreticalExplanation(
 
   // Default explanation for unknown models
   const defaultExplanation = (factors: typeof topFactorValues, score: number) => {
-    const topFactor = factors[0];
     return score >= 50
       ? `Key factors ${factors.map(f => f.factor).join(', ')} at concerning levels (${factors.map(f => f.value).join(', ')}).`
       : `Key factors remain below historical consolidation thresholds.`;
@@ -352,7 +345,6 @@ export interface ModelValidation {
 // Ordinary Least Squares regression to find optimal weights
 export function fitWeightsOLS(): RegressionResult {
   const n = historicalCases.length;
-  const k = FACTORS.length;
 
   // Build X matrix (factors) and Y vector (outcomes)
   const X: number[][] = [];
@@ -363,9 +355,6 @@ export function fitWeightsOLS(): RegressionResult {
     X.push(row);
     Y.push(c.outcomeScore / 100); // Normalize outcome
   }
-
-  // Add intercept column
-  const X_with_intercept = X.map(row => [1, ...row]);
 
   // OLS: β = (X'X)^(-1) X'Y
   // Using gradient descent as simpler implementation
